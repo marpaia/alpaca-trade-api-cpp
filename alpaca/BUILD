@@ -4,6 +4,7 @@ cc_library(
     name = "alpaca",
     srcs = [
         "account.cpp",
+        "asset.cpp",
         "client.cpp",
         "config.cpp",
         "order.cpp",
@@ -11,6 +12,7 @@ cc_library(
     ],
     hdrs = [
         "account.h",
+        "asset.h",
         "alpaca.h",
         "client.h",
         "config.h",

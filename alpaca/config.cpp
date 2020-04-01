@@ -1,23 +1,22 @@
 #include "alpaca/config.h"
 
-#include "absl/strings/str_format.h"
 #include "glog/logging.h"
 
 namespace alpaca {
 
 Status Environment::parse() {
-  constexpr absl::string_view error_format_string = "%s environment variable not set";
+  auto error_suffix = " environment variable not set";
 
   if (auto e = std::getenv(api_key_id_env_var_.c_str())) {
     api_key_id_ = std::string(e);
   } else {
-    return Status(1, absl::StrFormat(error_format_string, api_key_id_env_var_));
+    return Status(1, api_key_id_env_var_ + error_suffix);
   }
 
   if (auto e = std::getenv(api_secret_key_env_var_.c_str())) {
     api_secret_key_ = std::string(e);
   } else {
-    return Status(1, absl::StrFormat(error_format_string, api_secret_key_env_var_));
+    return Status(1, api_secret_key_env_var_ + error_suffix);
   }
 
   if (auto e = std::getenv(api_base_url_env_var_.c_str())) {

@@ -2,7 +2,6 @@
 
 #include <utility>
 
-#include "absl/strings/str_format.h"
 #include "glog/logging.h"
 #include "httplib.h"
 
@@ -31,7 +30,9 @@ Status Client::getAccount(Account& account) const {
     return Status(1, "Call to /v2/account returned an empty response");
   }
   if (resp->status != 200) {
-    return Status(1, absl::StrFormat("Call to /v2/account returned an HTTP %d: %s", resp->status, resp->body));
+    std::ostringstream ss;
+    ss << "Call to /v2/account returned an HTTP " << resp->status << ": " << resp->body;
+    return Status(1, ss.str());
   }
 
   DLOG(INFO) << "Response from /v2/account: " << resp->body;

@@ -4,21 +4,12 @@ workspace(name = "alpaca_trade_api_cpp")
 # General Initialization
 ################################################################################
 
-# The native http_archive rule is deprecated. This is a drop-in replacement.
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 ################################################################################
 # C++ Dependencies
 ################################################################################
-
-# Abseil is an open-source collection of C++ code (compliant to C++11) designed
-# to augment the C++ standard library.
-http_archive(
-    name = "com_github_abseil_abseil-cpp",
-    strip_prefix = "abseil-cpp-20200225.1",
-    urls = ["https://github.com/abseil/abseil-cpp/archive/20200225.1.tar.gz"],
-)
 
 # googletest is a testing framework developed by Google.
 http_archive(

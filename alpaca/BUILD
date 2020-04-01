@@ -21,7 +21,6 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@com_github_abseil_abseil-cpp//absl/strings:str_format",
         "@com_github_google_boringssl//:ssl",
         "@com_github_google_glog//:glog",
         "@com_github_tencent_rapidjson//:rapidjson",

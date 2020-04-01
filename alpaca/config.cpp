@@ -11,13 +11,13 @@ Status Environment::parse() {
   if (auto e = std::getenv(api_key_id_env_var_.c_str())) {
     api_key_id_ = std::string(e);
   } else {
-    return Status(1, absl::StrFormat(error_format_string, "APCA_API_KEY_ID"));
+    return Status(1, absl::StrFormat(error_format_string, api_key_id_env_var_));
   }
 
   if (auto e = std::getenv(api_secret_key_env_var_.c_str())) {
     api_secret_key_ = std::string(e);
   } else {
-    return Status(1, absl::StrFormat(error_format_string, "APCA_API_SECRET_KEY"));
+    return Status(1, absl::StrFormat(error_format_string, api_secret_key_env_var_));
   }
 
   if (auto e = std::getenv(api_base_url_env_var_.c_str())) {

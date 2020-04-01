@@ -28,6 +28,11 @@ class Client {
   explicit Client(Environment& environment);
 
   /**
+   * @brief The default constructor of Client should never be used.
+   */
+  explicit Client() = delete;
+
+  /**
    * @brief Fetch Alpaca account information.
    *
    * @code{.cpp}

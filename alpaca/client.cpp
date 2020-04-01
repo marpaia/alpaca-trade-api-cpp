@@ -25,7 +25,6 @@ Client::Client(Environment& environment) {
 
 Status Client::getAccount(Account& account) const {
   httplib::SSLClient client(environment_.getAPIBaseURL());
-  std::string body;
   auto resp = client.Get("/v2/account", headers(environment_));
   if (!resp) {
     return Status(1, "Call to /v2/account returned an empty response");

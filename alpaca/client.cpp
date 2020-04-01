@@ -6,6 +6,14 @@
 #include "httplib.h"
 
 namespace alpaca {
+
+httplib::Headers headers(const Environment& environment) {
+  return {
+      {"APCA-API-KEY-ID", environment.getAPIKeyID()},
+      {"APCA-API-SECRET-KEY", environment.getAPISecretKey()},
+  };
+}
+
 Client::Client(Environment& environment) {
   if (!environment.hasBeenParsed()) {
     if (auto s = environment.parse(); !s.ok()) {
@@ -15,17 +23,10 @@ Client::Client(Environment& environment) {
   environment_ = environment;
 }
 
-httplib::Headers Client::headers() const {
-  return {
-      {"APCA-API-KEY-ID", environment_.getAPIKeyID()},
-      {"APCA-API-SECRET-KEY", environment_.getAPISecretKey()},
-  };
-}
-
 Status Client::getAccount(Account& account) const {
   httplib::SSLClient client(environment_.getAPIBaseURL());
   std::string body;
-  auto resp = client.Get("/v2/account", headers());
+  auto resp = client.Get("/v2/account", headers(environment_));
   if (!resp) {
     return Status(1, "Call to /v2/account returned an empty response");
   }
@@ -38,4 +39,5 @@ Status Client::getAccount(Account& account) const {
   DLOG(INFO) << "Response from /v2/account: " << resp->body;
   return account.fromJSON(resp->body);
 }
+
 } // namespace alpaca

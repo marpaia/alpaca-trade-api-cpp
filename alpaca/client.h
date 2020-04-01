@@ -5,7 +5,6 @@
 #include "alpaca/account.h"
 #include "alpaca/config.h"
 #include "alpaca/status.h"
-#include "httplib.h"
 
 namespace alpaca {
 
@@ -46,9 +45,6 @@ class Client {
    * @return a Status indicating the success or faliure of the operation.
    */
   Status getAccount(Account& account) const;
-
- protected:
-  httplib::Headers headers() const;
 
  private:
   Environment environment_;

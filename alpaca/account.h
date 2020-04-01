@@ -7,7 +7,7 @@
 namespace alpaca {
 
 /**
- * @brief A type representing an Alpaca accoount.
+ * @brief A type representing an Alpaca account.
  */
 class Account {
  public:

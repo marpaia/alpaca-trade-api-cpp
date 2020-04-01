@@ -7,6 +7,7 @@ cc_library(
         "client.cpp",
         "config.cpp",
         "order.cpp",
+        "position.cpp",
     ],
     hdrs = [
         "account.h",
@@ -16,6 +17,7 @@ cc_library(
         "documentation.h",
         "json.h",
         "order.h",
+        "position.h",
         "status.h",
     ],
     defines = [

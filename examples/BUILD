@@ -1,12 +1,7 @@
-package(default_visibility = ["//visibility:private"])
+package(default_visibility = ["//visibility:public"])
 
 cc_binary(
     name = "basic",
-    srcs = [
-        "basic.cpp",
-    ],
-    visibility = ["//visibility:public"],
-    deps = [
-        "//alpaca:alpaca",
-    ],
+    srcs = ["basic.cpp"],
+    deps = ["//alpaca:alpaca"],
 )

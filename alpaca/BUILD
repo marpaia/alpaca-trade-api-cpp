@@ -3,17 +3,26 @@ package(default_visibility = ["//visibility:private"])
 cc_library(
     name = "alpaca",
     srcs = [
+        "account.cpp",
+        "client.cpp",
         "config.cpp",
     ],
     hdrs = [
+        "account.h",
         "alpaca.h",
+        "client.h",
         "config.h",
         "documentation.h",
+        "json.h",
         "status.h",
+    ],
+    defines = [
+        "CPPHTTPLIB_OPENSSL_SUPPORT",
     ],
     visibility = ["//visibility:public"],
     deps = [
-        "@com_google_absl//absl/strings:str_format",
+        "@com_github_abseil_abseil-cpp//absl/strings:str_format",
+        "@com_github_google_boringssl//:ssl",
         "@com_github_google_glog//:glog",
         "@com_github_tencent_rapidjson//:rapidjson",
         "@com_github_yhirose_cpp-httplib//:httplib",

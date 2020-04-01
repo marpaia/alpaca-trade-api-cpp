@@ -7,13 +7,13 @@
 namespace alpaca {
 
 /// The base URL for API calls to the live trading API
-const std::string kAPIBaseURLLive = "https://api.alpaca.markets";
+const std::string kAPIBaseURLLive = "api.alpaca.markets";
 
 /// The base URL for API calls to the paper trading API
-const std::string kAPIBaseURLPaper = "https://paper-api.alpaca.markets";
+const std::string kAPIBaseURLPaper = "paper-api.alpaca.markets";
 
 /// The base URL for API calls to the data API
-const std::string kAPIDataURL = "https://data.alpaca.markets";
+const std::string kAPIDataURL = "data.alpaca.markets";
 
 /**
  * @brief A class to help witth parsing required variables from the environment.
@@ -51,6 +51,11 @@ class Environment {
   Status parse();
 
   /**
+   * @brief Indicates wether or not the environment has been successfully parsed.
+   */
+  bool hasBeenParsed() const;
+
+  /**
    * @brief A getter for the API Key ID
    *
    * Note that this method should only be called after successfully calliing
@@ -83,6 +88,8 @@ class Environment {
   std::string getAPIDataURL() const;
 
  private:
+  bool parsed_;
+
   std::string api_key_id_;
   std::string api_secret_key_;
   std::string api_base_url_;

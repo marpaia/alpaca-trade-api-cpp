@@ -6,6 +6,7 @@ workspace(name = "alpaca_trade_api_cpp")
 
 # The native http_archive rule is deprecated. This is a drop-in replacement.
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 ################################################################################
 # C++ Dependencies
@@ -14,7 +15,7 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # Abseil is an open-source collection of C++ code (compliant to C++11) designed
 # to augment the C++ standard library.
 http_archive(
-    name = "com_google_absl",
+    name = "com_github_abseil_abseil-cpp",
     strip_prefix = "abseil-cpp-20200225.1",
     urls = ["https://github.com/abseil/abseil-cpp/archive/20200225.1.tar.gz"],
 )
@@ -54,4 +55,11 @@ http_archive(
     strip_prefix = "cpp-httplib-0.5.7",
     urls = ["https://github.com/yhirose/cpp-httplib/archive/v0.5.7.tar.gz"],
     build_file = "@alpaca_trade_api_cpp//third_party/cpp-httplib:BUILD"
+)
+
+# BoringSSL is a fork of OpenSSL that is designed to meet Google's needs.
+http_archive(
+    name = "com_github_google_boringssl",
+    strip_prefix = "boringssl-master-with-bazel",
+    urls = ["https://github.com/google/boringssl/archive/master-with-bazel.tar.gz"],
 )

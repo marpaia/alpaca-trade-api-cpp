@@ -34,7 +34,12 @@ Status Environment::parse() {
     api_data_url_ = kAPIDataURL;
   }
 
+  parsed_ = true;
   return Status();
+}
+
+bool Environment::hasBeenParsed() const {
+  return parsed_;
 }
 
 std::string Environment::getAPIKeyID() const {

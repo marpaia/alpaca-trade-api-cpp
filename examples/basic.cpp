@@ -1,6 +1,4 @@
-#include <cstdlib>
-
-#include "alpaca/config.h"
+#include "alpaca/alpaca.h"
 #include "glog/logging.h"
 
 int main(int argc, char* argv[]) {

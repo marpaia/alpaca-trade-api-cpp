@@ -6,6 +6,7 @@ cc_library(
         "config.cpp",
     ],
     hdrs = [
+        "alpaca.h",
         "config.h",
         "documentation.h",
         "status.h",

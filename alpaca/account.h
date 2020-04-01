@@ -48,4 +48,25 @@ class Account {
   bool trading_blocked;
   bool transfers_blocked;
 };
+
+/**
+ * @brief A type representing Alpaca account configuration.
+ */
+class AccountConfiguration {
+ public:
+  /**
+   * @brief A method for deserializing JSON into the current object state.
+   *
+   * @param json The JSON string
+   *
+   * @return a Status indicating the success or faliure of the operation.
+   */
+  Status fromJSON(const std::string& json);
+
+ public:
+  std:: string dtbp_check;
+  bool no_shorting;
+  bool suspend_trade;
+  std::string trade_confirm_email;
+};
 } // namespace alpaca

@@ -43,4 +43,22 @@ Status Account::fromJSON(const std::string& json) {
 
   return Status();
 }
+
+Status AccountConfiguration::fromJSON(const std::string& json) {
+  rapidjson::Document d;
+  if (d.Parse(json.c_str()).HasParseError()) {
+    return Status(1, "Received parse error when deserializing account configuration JSON");
+  }
+
+  if (!d.IsObject()) {
+    return Status(1, "Deserialized valid JSON but it wasn't an account configuration object");
+  }
+
+  PARSE_STRING(dtbp_check, "dtbp_check")
+  PARSE_BOOL(no_shorting, "no_shorting")
+  PARSE_BOOL(suspend_trade, "suspend_trade")
+  PARSE_STRING(trade_confirm_email, "trade_confirm_email")
+
+  return Status();
+}
 } // namespace alpaca

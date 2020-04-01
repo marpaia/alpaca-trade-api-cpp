@@ -21,7 +21,7 @@ namespace alpaca {
  * @endcode
  */
 class Status {
-public:
+ public:
   /**
    * @brief Default constructor
    *
@@ -44,13 +44,15 @@ public:
    */
   Status(int c, std::string m) : code_(c), message_(std::move(m)) {}
 
-public:
+ public:
   /**
    * @brief A getter for the status code property
    *
    * @return an integer representing the status code of the operation.
    */
-  int getCode() const { return code_; }
+  int getCode() const {
+    return code_;
+  }
 
   /**
    * @brief A getter for the message property
@@ -59,7 +61,9 @@ public:
    * success or failure of an operation. On successful operations, the idiom
    * is for the message to be "OK"
    */
-  std::string getMessage() const { return message_; }
+  std::string getMessage() const {
+    return message_;
+  }
 
   /**
    * @brief A convenience method to check if the return code is 0
@@ -75,21 +79,27 @@ public:
    *
    * @return a boolean which is true if the status code is 0, false otherwise.
    */
-  bool ok() const { return getCode() == 0; }
+  bool ok() const {
+    return getCode() == 0;
+  }
 
   /**
    * @brief A synonym for alpaca::Status::getMessage()
    *
    * @see getMessage()
    */
-  std::string toString() const { return getMessage(); }
+  std::string toString() const {
+    return getMessage();
+  }
 
   /**
    * @brief A synonym for alpaca::Status::getMessage()
    *
    * @see getMessage()
    */
-  std::string what() const { return getMessage(); }
+  std::string what() const {
+    return getMessage();
+  }
 
   /**
    * @brief implicit conversion to bool
@@ -102,22 +112,26 @@ public:
    *   }
    * @endcode
    */
-  /* explicit */ explicit operator bool() const { return ok(); }
+  /* explicit */ explicit operator bool() const {
+    return ok();
+  }
 
   // Below operator implementations useful for testing with gtest
 
   // Enables use of gtest (ASSERT|EXPECT)_EQ
-  bool operator==(const Status &rhs) const {
+  bool operator==(const Status& rhs) const {
     return (code_ == rhs.getCode()) && (message_ == rhs.getMessage());
   }
 
   // Enables use of gtest (ASSERT|EXPECT)_NE
-  bool operator!=(const Status &rhs) const { return !operator==(rhs); }
+  bool operator!=(const Status& rhs) const {
+    return !operator==(rhs);
+  }
 
   // Enables pretty-printing in gtest (ASSERT|EXPECT)_(EQ|NE)
-  friend ::std::ostream &operator<<(::std::ostream &os, const Status &s);
+  friend ::std::ostream& operator<<(::std::ostream& os, const Status& s);
 
-private:
+ private:
   /// the internal storage of the status code
   int code_;
 

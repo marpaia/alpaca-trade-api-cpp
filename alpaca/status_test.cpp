@@ -1,8 +1,7 @@
 #include <thread>
 
-#include "gtest/gtest.h"
-
 #include "alpaca/status.h"
+#include "gtest/gtest.h"
 
 class StatusTest : public ::testing::Test {};
 

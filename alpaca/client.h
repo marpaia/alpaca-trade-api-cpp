@@ -102,6 +102,26 @@ class Client {
   std::pair<Status, Order> getOrder(const std::string& id, const bool nested = false) const;
 
   /**
+   * @brief Fetch a specific Alpaca order by client order ID.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getOrderByClientOrderID("13901840-34e2-4175-9f42-e3d0302ab0ad");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting order information: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto order = resp.second;
+   *   LOG(INFO) << "Client order identifier: " << order.client_order_id;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Order object.
+   */
+  std::pair<Status, Order> getOrderByClientOrderID(const std::string& client_order_id) const;
+
+  /**
    * @brief Submit an Alpaca order.
    *
    * @code{.cpp}

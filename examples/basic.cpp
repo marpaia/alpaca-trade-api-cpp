@@ -47,6 +47,14 @@ int main(int argc, char* argv[]) {
       return status.getCode();
     }
     LOG(INFO) << "Got order by ID: " << single_order_response.second.id;
+
+    LOG(INFO) << "Fetching order by client order ID: " << o.id;
+    auto coid_order_response = client.getOrderByClientOrderID(o.client_order_id);
+    if (auto status = coid_order_response.first; !status.ok()) {
+      LOG(ERROR) << "Error getting order information: " << status.getMessage();
+      return status.getCode();
+    }
+    LOG(INFO) << "Got order by client order ID: " << o.id;
   }
 
   return 0;

@@ -40,7 +40,13 @@ int main(int argc, char* argv[]) {
   auto orders = get_orders_response.second;
   LOG(INFO) << "Got info about " << orders.size() << " orders.";
   for (const auto& o : orders) {
-    LOG(INFO) << "Past order created at: " << o.created_at;
+    LOG(INFO) << "Fetching order by ID: " << o.id;
+    auto single_order_response = client.getOrder(o.id);
+    if (auto status = single_order_response.first; !status.ok()) {
+      LOG(ERROR) << "Error getting order information: " << status.getMessage();
+      return status.getCode();
+    }
+    LOG(INFO) << "Got order by ID: " << single_order_response.second.id;
   }
 
   return 0;

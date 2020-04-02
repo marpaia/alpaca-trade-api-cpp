@@ -47,6 +47,31 @@ std::pair<Status, Account> Client::getAccount() const {
   return std::make_pair(account.fromJSON(resp->body), account);
 }
 
+std::pair<Status, Order> Client::getOrder(const std::string& id, const bool nested) const {
+  Order order;
+
+  auto url = "/v2/orders/" + id;
+  if (nested) {
+    url += "?nested=true";
+  }
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/orders returned an empty response"), order);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/orders returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), order);
+  }
+
+  DLOG(INFO) << "Response from /v2/orders: " << resp->body;
+  return std::make_pair(order.fromJSON(resp->body), order);
+}
+
 std::pair<Status, std::vector<Order>> Client::getOrders(const OrderStatus status,
                                                         const int limit,
                                                         const std::string& after,

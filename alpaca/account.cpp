@@ -51,7 +51,9 @@ Status AccountConfiguration::fromJSON(const std::string& json) {
   }
 
   if (!d.IsObject()) {
-    return Status(1, "Deserialized valid JSON but it wasn't an account configuration object");
+    return Status(1,
+                  "Deserialized valid JSON but it wasn't an account "
+                  "configuration object");
   }
 
   PARSE_STRING(dtbp_check, "dtbp_check")

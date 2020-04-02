@@ -64,7 +64,7 @@ class AccountConfiguration {
   Status fromJSON(const std::string& json);
 
  public:
-  std:: string dtbp_check;
+  std::string dtbp_check;
   bool no_shorting;
   bool suspend_trade;
   std::string trade_confirm_email;

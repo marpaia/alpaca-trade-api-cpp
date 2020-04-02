@@ -51,7 +51,8 @@ class Environment {
   Status parse();
 
   /**
-   * @brief Indicates wether or not the environment has been successfully parsed.
+   * @brief Indicates wether or not the environment has been successfully
+   * parsed.
    */
   bool hasBeenParsed() const;
 

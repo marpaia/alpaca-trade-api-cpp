@@ -4,6 +4,79 @@
 #include "rapidjson/document.h"
 
 namespace alpaca {
+
+std::string orderStatusToString(const OrderStatus status) {
+  switch (status) {
+  case OrderStatus::Open:
+    return "open";
+  case OrderStatus::Closed:
+    return "closed";
+  case OrderStatus::All:
+    return "all";
+  }
+}
+
+std::string orderDirectionToString(const OrderDirection direction) {
+  switch (direction) {
+  case OrderDirection::Ascending:
+    return "asc";
+  case OrderDirection::Descending:
+    return "desc";
+  }
+}
+
+std::string orderSideToString(const OrderSide side) {
+  switch (side) {
+  case OrderSide::Buy:
+    return "buy";
+  case OrderSide::Sell:
+    return "sell";
+  }
+}
+
+std::string orderTypeToString(const OrderType type) {
+  switch (type) {
+  case OrderType::Market:
+    return "market";
+  case OrderType::Limit:
+    return "limit";
+  case OrderType::Stop:
+    return "stop";
+  case OrderType::StopLimit:
+    return "stop_limit";
+  }
+}
+
+std::string orderTimeInForceToString(const OrderTimeInForce tif) {
+  switch (tif) {
+  case OrderTimeInForce::Day:
+    return "day";
+  case OrderTimeInForce::GoodUntilCanceled:
+    return "gtc";
+  case OrderTimeInForce::OPG:
+    return "opg";
+  case OrderTimeInForce::CLS:
+    return "cls";
+  case OrderTimeInForce::ImmediateOrCancel:
+    return "ioc";
+  case OrderTimeInForce::FillOrKill:
+    return "fok";
+  }
+}
+
+std::string orderClassToString(const OrderClass order_class) {
+  switch (order_class) {
+  case OrderClass::Simple:
+    return "simple";
+  case OrderClass::Bracket:
+    return "bracket";
+  case OrderClass::OneCancelsOther:
+    return "oco";
+  case OrderClass::OneTriggersOther:
+    return "oto";
+  }
+}
+
 Status Order::fromJSON(const std::string& json) {
   rapidjson::Document d;
   if (d.Parse(json.c_str()).HasParseError()) {

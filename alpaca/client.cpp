@@ -17,7 +17,7 @@ httplib::Headers headers(const Environment& environment) {
 Client::Client(Environment& environment) {
   if (!environment.hasBeenParsed()) {
     if (auto s = environment.parse(); !s.ok()) {
-      LOG(ERROR) << "error parsing the environment: " << s.getMessage();
+      LOG(ERROR) << "Error parsing the environment: " << s.getMessage();
     }
   }
   environment_ = environment;

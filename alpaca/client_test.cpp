@@ -15,6 +15,22 @@ TEST_F(ClientTest, testGetAccount) {
   EXPECT_EQ(account.status, "ACTIVE");
 }
 
+TEST_F(ClientTest, testGetAccountConfigurations) {
+  auto client = testClient();
+  auto get_account_configurations_resp = client.getAccountConfigurations();
+  EXPECT_OK(get_account_configurations_resp.first);
+  auto account_configurations = get_account_configurations_resp.second;
+
+  auto update_account_configurations_resp =
+      client.updateAccountConfigurations(false,
+                                         account_configurations.dtbp_check,
+                                         account_configurations.trade_confirm_email,
+                                         account_configurations.suspend_trade);
+  EXPECT_OK(update_account_configurations_resp.first);
+  auto updated_account_configurations = update_account_configurations_resp.second;
+  EXPECT_FALSE(updated_account_configurations.no_shorting);
+}
+
 TEST_F(ClientTest, testOrders) {
   auto client = testClient();
   auto number_of_orders = 3;

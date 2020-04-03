@@ -52,7 +52,7 @@ class Account {
 /**
  * @brief A type representing Alpaca account configuration.
  */
-class AccountConfiguration {
+class AccountConfigurations {
  public:
   /**
    * @brief A method for deserializing JSON into the current object state.

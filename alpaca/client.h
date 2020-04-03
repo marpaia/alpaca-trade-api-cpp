@@ -60,6 +60,49 @@ class Client {
   std::pair<Status, Account> getAccount() const;
 
   /**
+   * @brief Fetch Alpaca account configuration information.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getAccountConfigurations();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting account information: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto account_config = resp.second;
+   *   if (accout_config.no_shorting) {
+   *     LOG(WARNING) << "This account is not allowed to short!";
+   *   }
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an
+   * alpaca::AccountConfigurations object.
+   */
+  std::pair<Status, AccountConfigurations> getAccountConfigurations() const;
+
+  /**
+   * @brief Update Alpaca account configuration information.
+   *
+   * @code{.cpp}
+   *   auto resp = client.updateAccountConfigurations(true);
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error updating account information: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an
+   * alpaca::AccountConfigurations object.
+   */
+  std::pair<Status, AccountConfigurations> updateAccountConfigurations(const bool no_shorting,
+                                                                       const std::string& dtbp_check,
+                                                                       const std::string& trade_confirm_email,
+                                                                       const bool suspend_trade) const;
+
+  /**
    * @brief Fetch submitted Alpaca orders.
    *
    * @code{.cpp}

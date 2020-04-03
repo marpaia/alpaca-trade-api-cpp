@@ -44,16 +44,14 @@ Status Account::fromJSON(const std::string& json) {
   return Status();
 }
 
-Status AccountConfiguration::fromJSON(const std::string& json) {
+Status AccountConfigurations::fromJSON(const std::string& json) {
   rapidjson::Document d;
   if (d.Parse(json.c_str()).HasParseError()) {
-    return Status(1, "Received parse error when deserializing account configuration JSON");
+    return Status(1, "Received parse error when deserializing account configurations JSON");
   }
 
   if (!d.IsObject()) {
-    return Status(1,
-                  "Deserialized valid JSON but it wasn't an account "
-                  "configuration object");
+    return Status(1, "Deserialized valid JSON but it wasn't an account configurations object");
   }
 
   PARSE_STRING(dtbp_check, "dtbp_check")

@@ -47,6 +47,69 @@ std::pair<Status, Account> Client::getAccount() const {
   return std::make_pair(account.fromJSON(resp->body), account);
 }
 
+std::pair<Status, AccountConfigurations> Client::getAccountConfigurations() const {
+  AccountConfigurations account_configurations;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto resp = client.Get("/v2/account/configurations", headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/account/configurations returned an empty response"),
+                          account_configurations);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/account/configurations returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), account_configurations);
+  }
+
+  DLOG(INFO) << "Response from /v2/account/configurations: " << resp->body;
+  return std::make_pair(account_configurations.fromJSON(resp->body), account_configurations);
+}
+
+std::pair<Status, AccountConfigurations> Client::updateAccountConfigurations(const bool no_shorting,
+                                                                             const std::string& dtbp_check,
+                                                                             const std::string& trade_confirm_email,
+                                                                             const bool suspend_trade) const {
+  AccountConfigurations account_configurations;
+
+  rapidjson::StringBuffer s;
+  s.Clear();
+  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+  writer.StartObject();
+
+  writer.Key("no_shorting");
+  writer.Bool(no_shorting);
+
+  writer.Key("dtbp_check");
+  writer.String(dtbp_check.c_str());
+
+  writer.Key("trade_confirm_email");
+  writer.String(trade_confirm_email.c_str());
+
+  writer.Key("suspend_trade");
+  writer.Bool(suspend_trade);
+
+  writer.EndObject();
+  auto body = s.GetString();
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto resp = client.Patch("/v2/account/configurations", headers(environment_), body, kJSONContentType);
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/account/configurations returned an empty response"),
+                          account_configurations);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/account/configurations returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), account_configurations);
+  }
+
+  DLOG(INFO) << "Response from /v2/account/configurations: " << resp->body;
+  return std::make_pair(account_configurations.fromJSON(resp->body), account_configurations);
+}
+
 std::pair<Status, Order> Client::getOrder(const std::string& id, const bool nested) const {
   Order order;
 
@@ -602,6 +665,5 @@ std::pair<Status, Clock> Client::getClock() const {
   DLOG(INFO) << "Response from /v2/clock: " << resp->body;
   return std::make_pair(clock.fromJSON(resp->body), clock);
 }
-
 
 } // namespace alpaca

@@ -121,7 +121,7 @@ struct StopLossParams {
 };
 
 /**
- * @brief A type representing an Alpaca account.
+ * @brief A type representing an Alpaca order.
  */
 class Order {
  public:

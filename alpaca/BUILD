@@ -36,6 +36,18 @@ cc_library(
     ],
 )
 
+cc_library(
+    name = "test_helpers",
+    srcs = [],
+    hdrs = [
+        "testing.h",
+    ],
+    deps = [
+        ":alpaca",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
 cc_test(
     name = "status_test",
     size = "small",
@@ -44,6 +56,20 @@ cc_test(
     ],
     deps = [
         ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "client_test",
+    size = "medium",
+    srcs = [
+        "client_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
         "@com_google_googletest//:gtest_main",
     ],
 )

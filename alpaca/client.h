@@ -187,6 +187,46 @@ class Client {
                                         const std::string& stop_price = "",
                                         const std::string& client_order_id = "") const;
 
+  /**
+   * @brief Cancel all Alpaca orders.
+   *
+   * @code{.cpp}
+   *   auto resp = client.cancelOrders();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error cancelling orders: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto orders = resp.second;
+   *   LOG(INFO) << "Number of orders: " << orders.size();
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is a vector of
+   * alpaca::Order objects.
+   */
+  std::pair<Status, std::vector<Order>> cancelOrders() const;
+
+  /**
+   * @brief Cancel a specific Alpaca order.
+   *
+   * @code{.cpp}
+   *   auto resp = client.cancelOrder("6ad592c4-b3de-4517-a21c-13fdb184d65f");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error cancelling order: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto order = resp.second;
+   *   LOG(INFO) << "Order identifier: " << order.id;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Order object.
+   */
+  std::pair<Status, Order> cancelOrder(const std::string& id) const;
+
  private:
   Environment environment_;
 };

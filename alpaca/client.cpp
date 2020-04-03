@@ -59,7 +59,9 @@ std::pair<Status, Order> Client::getOrder(const std::string& id, const bool nest
   DLOG(INFO) << "Making request to: " << url;
   auto resp = client.Get(url.c_str(), headers(environment_));
   if (!resp) {
-    return std::make_pair(Status(1, "Call to /v2/orders returned an empty response"), order);
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), order);
   }
 
   if (resp->status != 200) {
@@ -68,7 +70,7 @@ std::pair<Status, Order> Client::getOrder(const std::string& id, const bool nest
     return std::make_pair(Status(1, ss.str()), order);
   }
 
-  DLOG(INFO) << "Response from /v2/orders: " << resp->body;
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
   return std::make_pair(order.fromJSON(resp->body), order);
 }
 
@@ -81,16 +83,18 @@ std::pair<Status, Order> Client::getOrderByClientOrderID(const std::string& clie
   DLOG(INFO) << "Making request to: " << url;
   auto resp = client.Get(url.c_str(), headers(environment_));
   if (!resp) {
-    return std::make_pair(Status(1, "Call to /v2/orders:by_client_order_id returned an empty response"), order);
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), order);
   }
 
   if (resp->status != 200) {
     std::ostringstream ss;
-    ss << "Call to /v2/orders:by_client_order_id returned an HTTP " << resp->status << ": " << resp->body;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
     return std::make_pair(Status(1, ss.str()), order);
   }
 
-  DLOG(INFO) << "Response from /v2/orders:by_client_order_id: " << resp->body;
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
   return std::make_pair(order.fromJSON(resp->body), order);
 }
 
@@ -122,7 +126,9 @@ std::pair<Status, std::vector<Order>> Client::getOrders(const OrderStatus status
   DLOG(INFO) << "Making request to: " << url;
   auto resp = client.Get(url.c_str(), headers(environment_));
   if (!resp) {
-    return std::make_pair(Status(1, "Call to /v2/orders returned an empty response"), orders);
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), orders);
   }
 
   if (resp->status != 200) {
@@ -131,7 +137,7 @@ std::pair<Status, std::vector<Order>> Client::getOrders(const OrderStatus status
     return std::make_pair(Status(1, ss.str()), orders);
   }
 
-  DLOG(INFO) << "Response from /v2/orders: " << resp->body;
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
 
   rapidjson::Document d;
   if (d.Parse(resp->body.c_str()).HasParseError()) {
@@ -252,15 +258,17 @@ std::pair<Status, Order> Client::submitOrder(const std::string& symbol,
     return std::make_pair(Status(1, ss.str()), order);
   }
 
+  DLOG(INFO) << "Response from /v2/orders: " << resp->body;
+
   return std::make_pair(order.fromJSON(resp->body), order);
 }
 
 std::pair<Status, Order> Client::replaceOrder(const std::string& id,
                                               const int quantity,
                                               const OrderTimeInForce tif,
-                                              const std::string& limit_price = "",
-                                              const std::string& stop_price = "",
-                                              const std::string& client_order_id = "") const {
+                                              const std::string& limit_price,
+                                              const std::string& stop_price,
+                                              const std::string& client_order_id) const {
   Order order;
 
   rapidjson::StringBuffer s;
@@ -309,7 +317,74 @@ std::pair<Status, Order> Client::replaceOrder(const std::string& id,
     return std::make_pair(Status(1, ss.str()), order);
   }
 
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+
   return std::make_pair(order.fromJSON(resp->body), order);
+}
+
+std::pair<Status, std::vector<Order>> Client::cancelOrders() const {
+  std::vector<Order> orders;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: /v2/orders";
+  auto resp = client.Delete("/v2/orders", headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/orders returned an empty response"), orders);
+  }
+
+  if (resp->status != 200 && resp->status != 207) {
+    std::ostringstream ss;
+    ss << "Call to /v2/orders returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), orders);
+  }
+
+  DLOG(INFO) << "Response from /v2/orders: " << resp->body;
+
+  rapidjson::Document d;
+  if (d.Parse(resp->body.c_str()).HasParseError()) {
+    return std::make_pair(Status(1, "Received parse error when deserializing orders JSON"), orders);
+  }
+  for (auto& o : d.GetArray()) {
+    Order order;
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    o.Accept(writer);
+    if (auto status = order.fromJSON(s.GetString()); !status.ok()) {
+      return std::make_pair(status, orders);
+    }
+    orders.push_back(order);
+  }
+
+  return std::make_pair(Status(), orders);
+}
+
+std::pair<Status, Order> Client::cancelOrder(const std::string& id) const {
+  Order order;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto url = "/v2/orders/" + id;
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Delete(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), order);
+  }
+
+  if (resp->status == 204) {
+    return getOrder(id);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), order);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+
+  return std::make_pair(Status(1, "Not implemented"), order);
 }
 
 } // namespace alpaca

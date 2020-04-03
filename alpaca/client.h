@@ -583,6 +583,24 @@ class Client {
    */
   std::pair<Status, Watchlist> removeSymbolFromWatchlist(const std::string& id, const std::string& symbol) const;
 
+  /**
+   * @brief Fetch portfolio history data.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getPortfolioHistory();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting portfolio history: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto portfolio_history = resp.second;
+   *   LOG(INFO) << "Latest equity value: " << portfolio_history.equity.back();
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::PortfolioHistory object.
+   */
   std::pair<Status, PortfolioHistory> getPortfolioHistory(const std::string& period = "",
                                                           const std::string& timeframe = "",
                                                           const std::string& date_end = "",

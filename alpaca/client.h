@@ -6,6 +6,7 @@
 
 #include "alpaca/account.h"
 #include "alpaca/asset.h"
+#include "alpaca/clock.h"
 #include "alpaca/config.h"
 #include "alpaca/order.h"
 #include "alpaca/position.h"
@@ -349,6 +350,26 @@ class Client {
    * of an alpaca::Asset object.
    */
   std::pair<Status, Asset> getAsset(const std::string& symbol) const;
+
+  /**
+   * @brief Fetch the market clock.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getClock();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting the market clock: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto clock = resp.second;
+   *   LOG(INFO) << "Next open: " << clock.next_open;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Clock object.
+   */
+  std::pair<Status, Clock> getClock() const;
 
  private:
   Environment environment_;

@@ -584,4 +584,24 @@ std::pair<Status, Asset> Client::getAsset(const std::string& symbol) const {
   return std::make_pair(asset.fromJSON(resp->body), asset);
 }
 
+std::pair<Status, Clock> Client::getClock() const {
+  Clock clock;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto resp = client.Get("/v2/clock", headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/clock returned an empty response"), clock);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/clock returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), clock);
+  }
+
+  DLOG(INFO) << "Response from /v2/clock: " << resp->body;
+  return std::make_pair(clock.fromJSON(resp->body), clock);
+}
+
+
 } // namespace alpaca

@@ -138,3 +138,12 @@ TEST_F(ClientTest, testAssets) {
   EXPECT_OK(get_asset_response.first);
   EXPECT_EQ(found_asset.id, get_asset_response.second.id);
 }
+
+TEST_F(ClientTest, testClock) {
+  auto client = testClient();
+  auto get_clock_response = client.getClock();
+  EXPECT_OK(get_clock_response.first);
+  auto clock = get_clock_response.second;
+  EXPECT_NE(clock.next_open, "");
+  EXPECT_NE(clock.next_close, "");
+}

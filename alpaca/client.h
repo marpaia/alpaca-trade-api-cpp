@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "alpaca/account.h"
+#include "alpaca/asset.h"
 #include "alpaca/config.h"
 #include "alpaca/order.h"
 #include "alpaca/position.h"
@@ -259,7 +260,7 @@ class Client {
    *     return status.getCode();
    *   }
    *   auto position = resp.second;
-   *   LOG(INFO) << "Client order identifier: " << order.client_order_id;
+   *   LOG(INFO) << "Asset class: " << position.asset_class;
    * @endcode
    *
    * @return a std::pair where the first elemennt is a Status indicating the
@@ -307,6 +308,46 @@ class Client {
    * of an alpaca::Position object.
    */
   std::pair<Status, Position> closePosition(const std::string& symbol) const;
+
+  /**
+   * @brief Fetch all open Alpaca assets.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getAssets();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting asset information: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto assets = resp.second;
+   *   LOG(INFO) << "Number of assets: " << assets.size();
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is a vector of
+   * alpaca::Asset objects.
+   */
+  std::pair<Status, std::vector<Asset>> getAssets() const;
+
+  /**
+   * @brief Fetch an asset for a given symbol.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getAsset("NFLX");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting asset information: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto asset = resp.second;
+   *   LOG(INFO) << "Asset class: " << asset.asset_class;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Asset object.
+   */
+  std::pair<Status, Asset> getAsset(const std::string& symbol) const;
 
  private:
   Environment environment_;

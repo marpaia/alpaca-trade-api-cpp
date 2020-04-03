@@ -513,4 +513,65 @@ std::pair<Status, Position> Client::closePosition(const std::string& symbol) con
   return std::make_pair(position.fromJSON(resp->body), position);
 }
 
+std::pair<Status, std::vector<Asset>> Client::getAssets() const {
+  std::vector<Asset> assets;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: /v2/assets";
+  auto resp = client.Get("/v2/assets", headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/assets returned an empty response"), assets);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/assets returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), assets);
+  }
+
+  DLOG(INFO) << "Response from /v2/assets: " << resp->body;
+
+  rapidjson::Document d;
+  if (d.Parse(resp->body.c_str()).HasParseError()) {
+    return std::make_pair(Status(1, "Received parse error when deserializing assets JSON"), assets);
+  }
+  for (auto& o : d.GetArray()) {
+    Asset asset;
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    o.Accept(writer);
+    if (auto status = asset.fromJSON(s.GetString()); !status.ok()) {
+      return std::make_pair(status, assets);
+    }
+    assets.push_back(asset);
+  }
+
+  return std::make_pair(Status(), assets);
+}
+
+std::pair<Status, Asset> Client::getAsset(const std::string& symbol) const {
+  Asset asset;
+
+  auto url = "/v2/assets/" + symbol;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), asset);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), asset);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+  return std::make_pair(asset.fromJSON(resp->body), asset);
+}
+
 } // namespace alpaca

@@ -10,6 +10,7 @@
 #include "alpaca/clock.h"
 #include "alpaca/config.h"
 #include "alpaca/order.h"
+#include "alpaca/portfolio.h"
 #include "alpaca/position.h"
 #include "alpaca/status.h"
 #include "alpaca/watchlist.h"
@@ -581,6 +582,11 @@ class Client {
    * of an alpaca::Watchlist object.
    */
   std::pair<Status, Watchlist> removeSymbolFromWatchlist(const std::string& id, const std::string& symbol) const;
+
+  std::pair<Status, PortfolioHistory> getPortfolioHistory(const std::string& period = "",
+                                                          const std::string& timeframe = "",
+                                                          const std::string& date_end = "",
+                                                          const bool extended_hours = false) const;
 
  private:
   Environment environment_;

@@ -222,3 +222,16 @@ TEST_F(ClientTest, testWatchlists) {
   auto delete_watchlist_response = client.deleteWatchlist(watchlist.id);
   EXPECT_OK(delete_watchlist_response);
 }
+
+TEST_F(ClientTest, testPortfolioHistory) {
+  auto client = alpaca::testClient();
+  auto get_portfolio_history_response = client.getPortfolioHistory();
+  EXPECT_OK(get_portfolio_history_response.first);
+  auto portfolio_history = get_portfolio_history_response.second;
+  EXPECT_GT(portfolio_history.base_value, 0.0);
+  EXPECT_GT(portfolio_history.equity.size(), 0);
+  EXPECT_GT(portfolio_history.profit_loss.size(), 0);
+  EXPECT_GT(portfolio_history.profit_loss_pct.size(), 0);
+  EXPECT_NE(portfolio_history.timeframe, "");
+  EXPECT_GT(portfolio_history.timestamp.size(), 0);
+}

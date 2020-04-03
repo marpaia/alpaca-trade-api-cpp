@@ -9,6 +9,7 @@ cc_library(
         "clock.cpp",
         "config.cpp",
         "order.cpp",
+        "portfolio.cpp",
         "position.cpp",
         "status.cpp",
         "watchlist.cpp",
@@ -23,6 +24,7 @@ cc_library(
         "documentation.h",
         "json.h",
         "order.h",
+        "portfolio.h",
         "position.h",
         "status.h",
         "watchlist.h",
@@ -68,7 +70,7 @@ cc_test(
 
 cc_test(
     name = "client_test",
-    size = "medium",
+    size = "large",
     srcs = [
         "client_test.cpp",
     ],

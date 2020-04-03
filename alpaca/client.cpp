@@ -950,4 +950,66 @@ std::pair<Status, Watchlist> Client::removeSymbolFromWatchlist(const std::string
   }
   return std::make_pair(watchlist.fromJSON(resp->body), watchlist);
 }
+
+std::pair<Status, PortfolioHistory> Client::getPortfolioHistory(const std::string& period,
+                                                                const std::string& timeframe,
+                                                                const std::string& date_end,
+                                                                const bool extended_hours) const {
+  PortfolioHistory portfolio_history;
+
+  std::string query_string = "";
+
+  if (period != "") {
+    if (query_string != "") {
+      query_string += "&";
+    }
+    query_string += "period=" + period;
+  }
+
+  if (timeframe != "") {
+    if (query_string != "") {
+      query_string += "&";
+    }
+    query_string += "timeframe=" + timeframe;
+  }
+
+  if (date_end != "") {
+    if (query_string != "") {
+      query_string += "&";
+    }
+    query_string += "date_end=" + date_end;
+  }
+
+  if (extended_hours) {
+    if (query_string != "") {
+      query_string += "&";
+    }
+    query_string += "extended_hours=true";
+  }
+
+  if (query_string != "") {
+    query_string = "?" + query_string;
+  }
+
+  auto url = "/v2/account/portfolio/history" + query_string;
+  DLOG(INFO) << "Making request to: " << url;
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), portfolio_history);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), portfolio_history);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+
+  return std::make_pair(portfolio_history.fromJSON(resp->body), portfolio_history);
+}
+
 } // namespace alpaca

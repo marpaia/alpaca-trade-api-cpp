@@ -7,6 +7,18 @@
 namespace alpaca {
 
 /**
+ * @brief The class of an asset.
+ */
+enum AssetClass {
+  USEquity,
+};
+
+/**
+ * @brief A helper to convert an AssetClass to a string
+ */
+std::string assetClassToString(const AssetClass asset_class);
+
+/**
  * @brief A type representing an Alpaca asset.
  */
 class Asset {

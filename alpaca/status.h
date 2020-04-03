@@ -7,6 +7,21 @@
 namespace alpaca {
 
 /**
+ * @brief The status of various Alpaca actions.
+ */
+enum ActionStatus {
+  Open,
+  Closed,
+  Active,
+  All,
+};
+
+/**
+ * @brief A helper to convert an ActionStatus to a string
+ */
+std::string actionStatusToString(const ActionStatus status);
+
+/**
  * @brief A utility class which is used to express the state of operations.
  *
  * @code{.cpp}

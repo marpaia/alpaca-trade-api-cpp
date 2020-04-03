@@ -44,7 +44,7 @@ TEST_F(ClientTest, testOrders) {
   }
 
   // enumerate all orders and make sure we have at least ten
-  auto get_orders_response = client.getOrders(alpaca::OrderStatus::All, number_of_orders);
+  auto get_orders_response = client.getOrders(alpaca::ActionStatus::All, number_of_orders);
   EXPECT_OK(get_orders_response.first);
   auto orders = get_orders_response.second;
   EXPECT_EQ(orders.size(), number_of_orders);

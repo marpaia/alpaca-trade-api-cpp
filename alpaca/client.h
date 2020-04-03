@@ -76,7 +76,7 @@ class Client {
    * success or faliure of the operation and the second element is a vector of
    * alpaca::Order objects.
    */
-  std::pair<Status, std::vector<Order>> getOrders(const OrderStatus status = OrderStatus::Open,
+  std::pair<Status, std::vector<Order>> getOrders(const ActionStatus status = ActionStatus::Open,
                                                   const int limit = 50,
                                                   const std::string& after = "",
                                                   const std::string& until = "",
@@ -269,7 +269,7 @@ class Client {
    */
   std::pair<Status, Position> getPosition(const std::string& symbol) const;
 
-    /**
+  /**
    * @brief Close (liquidate) all Alpaca positions.
    *
    * @code{.cpp}
@@ -327,7 +327,8 @@ class Client {
    * success or faliure of the operation and the second element is a vector of
    * alpaca::Asset objects.
    */
-  std::pair<Status, std::vector<Asset>> getAssets() const;
+  std::pair<Status, std::vector<Asset>> getAssets(const ActionStatus asset_status = ActionStatus::Active,
+                                                  const AssetClass asset_class = AssetClass::USEquity) const;
 
   /**
    * @brief Fetch an asset for a given symbol.

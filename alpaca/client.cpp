@@ -98,7 +98,7 @@ std::pair<Status, Order> Client::getOrderByClientOrderID(const std::string& clie
   return std::make_pair(order.fromJSON(resp->body), order);
 }
 
-std::pair<Status, std::vector<Order>> Client::getOrders(const OrderStatus status,
+std::pair<Status, std::vector<Order>> Client::getOrders(const ActionStatus status,
                                                         const int limit,
                                                         const std::string& after,
                                                         const std::string& until,
@@ -107,7 +107,7 @@ std::pair<Status, std::vector<Order>> Client::getOrders(const OrderStatus status
   std::vector<Order> orders;
 
   httplib::Params params{
-      {"status", orderStatusToString(status)},
+      {"status", actionStatusToString(status)},
       {"limit", std::to_string(limit)},
       {"direction", orderDirectionToString(direction)},
   };
@@ -513,23 +513,33 @@ std::pair<Status, Position> Client::closePosition(const std::string& symbol) con
   return std::make_pair(position.fromJSON(resp->body), position);
 }
 
-std::pair<Status, std::vector<Asset>> Client::getAssets() const {
+std::pair<Status, std::vector<Asset>> Client::getAssets(const ActionStatus asset_status,
+                                                        const AssetClass asset_class) const {
   std::vector<Asset> assets;
 
+  httplib::Params params{
+      {"status", actionStatusToString(asset_status)},
+      {"asset_class", assetClassToString(asset_class)},
+  };
+  auto query_string = httplib::detail::params_to_query_str(params);
+  auto url = "/v2/assets?" + query_string;
+
   httplib::SSLClient client(environment_.getAPIBaseURL());
-  DLOG(INFO) << "Making request to: /v2/assets";
-  auto resp = client.Get("/v2/assets", headers(environment_));
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
   if (!resp) {
-    return std::make_pair(Status(1, "Call to /v2/assets returned an empty response"), assets);
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), assets);
   }
 
   if (resp->status != 200) {
     std::ostringstream ss;
-    ss << "Call to /v2/assets returned an HTTP " << resp->status << ": " << resp->body;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
     return std::make_pair(Status(1, ss.str()), assets);
   }
 
-  DLOG(INFO) << "Response from /v2/assets: " << resp->body;
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
 
   rapidjson::Document d;
   if (d.Parse(resp->body.c_str()).HasParseError()) {

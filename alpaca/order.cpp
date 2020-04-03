@@ -5,17 +5,6 @@
 
 namespace alpaca {
 
-std::string orderStatusToString(const OrderStatus status) {
-  switch (status) {
-  case OrderStatus::Open:
-    return "open";
-  case OrderStatus::Closed:
-    return "closed";
-  case OrderStatus::All:
-    return "all";
-  }
-}
-
 std::string orderDirectionToString(const OrderDirection direction) {
   switch (direction) {
   case OrderDirection::Ascending:

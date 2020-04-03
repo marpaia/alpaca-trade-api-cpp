@@ -4,6 +4,14 @@
 #include "rapidjson/document.h"
 
 namespace alpaca {
+
+std::string assetClassToString(const AssetClass asset_class) {
+  switch (asset_class) {
+  case USEquity:
+    return "us_equity";
+  }
+}
+
 Status Asset::fromJSON(const std::string& json) {
   rapidjson::Document d;
   if (d.Parse(json.c_str()).HasParseError()) {

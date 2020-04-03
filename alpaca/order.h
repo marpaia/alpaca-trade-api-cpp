@@ -7,20 +7,6 @@
 namespace alpaca {
 
 /**
- * @brief The status of an Alpaca order.
- */
-enum OrderStatus {
-  Open,
-  Closed,
-  All,
-};
-
-/**
- * @brief A helper to convert an OrderStatus to a string
- */
-std::string orderStatusToString(const OrderStatus status);
-
-/**
  * @brief The direction to display orders in when enumerating them.
  */
 enum OrderDirection {

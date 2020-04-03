@@ -10,6 +10,7 @@ cc_library(
         "config.cpp",
         "order.cpp",
         "position.cpp",
+        "status.cpp",
     ],
     hdrs = [
         "account.h",

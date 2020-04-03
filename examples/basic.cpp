@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
   auto order = submit_order_response.second;
   LOG(INFO) << "Submitted order with client order ID: " << order.client_order_id;
 
-  auto get_orders_response = client.getOrders(alpaca::OrderStatus::All);
+  auto get_orders_response = client.getOrders(alpaca::ActionStatus::All);
   if (auto status = get_orders_response.first; !status.ok()) {
     LOG(ERROR) << "Error getting orders information: " << status.getMessage();
     return status.getCode();

@@ -158,6 +158,35 @@ class Client {
                                        TakeProfitParams* take_profit_params = nullptr,
                                        StopLossParams* stop_loss_params = nullptr) const;
 
+  /**
+   * @brief Replace an Alpaca order.
+   *
+   * @code{.cpp}
+   *   auto resp = client.ReplaceOrder(
+   *     "560fbbe6-16ce-41c6-b5b4-31a84646443a",
+   *     10,
+   *     alpaca::OrderTimeInForce::Day
+   *   );
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error submitting order: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto order = resp.second;
+   *   LOG(INFO) << "Client Order Identifier: " << order.client_order_id;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is the newly
+   * created alpaca::Order object.
+   */
+  std::pair<Status, Order> replaceOrder(const std::string& id,
+                                        const int quantity,
+                                        const OrderTimeInForce tif,
+                                        const std::string& limit_price = "",
+                                        const std::string& stop_price = "",
+                                        const std::string& client_order_id = "") const;
+
  private:
   Environment environment_;
 };

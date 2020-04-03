@@ -255,4 +255,61 @@ std::pair<Status, Order> Client::submitOrder(const std::string& symbol,
   return std::make_pair(order.fromJSON(resp->body), order);
 }
 
+std::pair<Status, Order> Client::replaceOrder(const std::string& id,
+                                              const int quantity,
+                                              const OrderTimeInForce tif,
+                                              const std::string& limit_price = "",
+                                              const std::string& stop_price = "",
+                                              const std::string& client_order_id = "") const {
+  Order order;
+
+  rapidjson::StringBuffer s;
+  s.Clear();
+  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+  writer.StartObject();
+
+  writer.Key("qty");
+  writer.Int(quantity);
+
+  writer.Key("time_in_force");
+  writer.String(orderTimeInForceToString(tif).c_str());
+
+  if (limit_price != "") {
+    writer.Key("limit_price");
+    writer.String(limit_price.c_str());
+  }
+
+  if (stop_price != "") {
+    writer.Key("stop_price");
+    writer.String(stop_price.c_str());
+  }
+
+  if (client_order_id != "") {
+    writer.Key("client_order_id");
+    writer.String(client_order_id.c_str());
+  }
+
+  writer.EndObject();
+  auto body = s.GetString();
+
+  auto url = "/v2/orders/" + id;
+  DLOG(INFO) << "Sending request body to " << url << ": " << body;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto resp = client.Patch(url.c_str(), headers(environment_), body, kJSONContentType);
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), order);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), order);
+  }
+
+  return std::make_pair(order.fromJSON(resp->body), order);
+}
+
 } // namespace alpaca

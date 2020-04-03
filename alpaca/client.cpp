@@ -66,7 +66,7 @@ std::pair<Status, Order> Client::getOrder(const std::string& id, const bool nest
 
   if (resp->status != 200) {
     std::ostringstream ss;
-    ss << "Call to /v2/orders returned an HTTP " << resp->status << ": " << resp->body;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
     return std::make_pair(Status(1, ss.str()), order);
   }
 
@@ -133,7 +133,7 @@ std::pair<Status, std::vector<Order>> Client::getOrders(const OrderStatus status
 
   if (resp->status != 200) {
     std::ostringstream ss;
-    ss << "Call to /v2/orders returned an HTTP " << resp->status << ": " << resp->body;
+    ss << "Call to /v2/ returned an HTTP " << resp->status << ": " << resp->body;
     return std::make_pair(Status(1, ss.str()), orders);
   }
 
@@ -384,7 +384,133 @@ std::pair<Status, Order> Client::cancelOrder(const std::string& id) const {
 
   DLOG(INFO) << "Response from " << url << ": " << resp->body;
 
-  return std::make_pair(Status(1, "Not implemented"), order);
+  return std::make_pair(order.fromJSON(resp->body), order);
+}
+
+std::pair<Status, std::vector<Position>> Client::getPositions() const {
+  std::vector<Position> positions;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: /v2/positions";
+  auto resp = client.Get("/v2/positions", headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/positions returned an empty response"), positions);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/positions returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), positions);
+  }
+
+  DLOG(INFO) << "Response from /v2/positions: " << resp->body;
+
+  rapidjson::Document d;
+  if (d.Parse(resp->body.c_str()).HasParseError()) {
+    return std::make_pair(Status(1, "Received parse error when deserializing positions JSON"), positions);
+  }
+  for (auto& o : d.GetArray()) {
+    Position position;
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    o.Accept(writer);
+    if (auto status = position.fromJSON(s.GetString()); !status.ok()) {
+      return std::make_pair(status, positions);
+    }
+    positions.push_back(position);
+  }
+
+  return std::make_pair(Status(), positions);
+}
+
+std::pair<Status, Position> Client::getPosition(const std::string& symbol) const {
+  Position position;
+
+  auto url = "/v2/positions/" + symbol;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), position);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), position);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+  return std::make_pair(position.fromJSON(resp->body), position);
+}
+
+std::pair<Status, std::vector<Position>> Client::closePositions() const {
+  std::vector<Position> positions;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: /v2/positions";
+  auto resp = client.Delete("/v2/orders", headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/positions returned an empty response"), positions);
+  }
+
+  if (resp->status != 200 && resp->status != 207) {
+    std::ostringstream ss;
+    ss << "Call to /v2/positions returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), positions);
+  }
+
+  DLOG(INFO) << "Response from /v2/positions: " << resp->body;
+
+  rapidjson::Document d;
+  if (d.Parse(resp->body.c_str()).HasParseError()) {
+    return std::make_pair(Status(1, "Received parse error when deserializing positions JSON"), positions);
+  }
+  for (auto& o : d.GetArray()) {
+    Position position;
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    o.Accept(writer);
+    if (auto status = position.fromJSON(s.GetString()); !status.ok()) {
+      return std::make_pair(status, positions);
+    }
+    positions.push_back(position);
+  }
+
+  return std::make_pair(Status(), positions);
+}
+
+std::pair<Status, Position> Client::closePosition(const std::string& symbol) const {
+  Position position;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto url = "/v2/positions/" + symbol;
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Delete(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), position);
+  }
+
+  if (resp->status == 204) {
+    return getPosition(symbol);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), position);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+
+  return std::make_pair(position.fromJSON(resp->body), position);
 }
 
 } // namespace alpaca

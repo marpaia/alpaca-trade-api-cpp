@@ -7,6 +7,7 @@
 #include "alpaca/account.h"
 #include "alpaca/config.h"
 #include "alpaca/order.h"
+#include "alpaca/position.h"
 #include "alpaca/status.h"
 
 namespace alpaca {
@@ -226,6 +227,86 @@ class Client {
    * of an alpaca::Order object.
    */
   std::pair<Status, Order> cancelOrder(const std::string& id) const;
+
+  /**
+   * @brief Fetch all open Alpaca positions.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getPositions();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting position information: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto positions = resp.second;
+   *   LOG(INFO) << "Number of positions: " << positions.size();
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is a vector of
+   * alpaca::Position objects.
+   */
+  std::pair<Status, std::vector<Position>> getPositions() const;
+
+  /**
+   * @brief Fetch a position for a given symbol.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getPosition("NFLX");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting position information: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto position = resp.second;
+   *   LOG(INFO) << "Client order identifier: " << order.client_order_id;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Position object.
+   */
+  std::pair<Status, Position> getPosition(const std::string& symbol) const;
+
+    /**
+   * @brief Close (liquidate) all Alpaca positions.
+   *
+   * @code{.cpp}
+   *   auto resp = client.closePositions();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error closing positions: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto positions = resp.second;
+   *   LOG(INFO) << "Number of positions: " << positions.size();
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is a vector of
+   * alpaca::Position objects.
+   */
+  std::pair<Status, std::vector<Position>> closePositions() const;
+
+  /**
+   * @brief Close (liquidate) the position for a given symbol.
+   *
+   * @code{.cpp}
+   *   auto resp = client.closePosition("NFLX");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error closing position: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto position = resp.second;
+   *   LOG(INFO) << "Asset identifier: " << position.asset_id;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Position object.
+   */
+  std::pair<Status, Position> closePosition(const std::string& symbol) const;
 
  private:
   Environment environment_;

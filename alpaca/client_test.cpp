@@ -60,3 +60,49 @@ TEST_F(ClientTest, testOrders) {
     EXPECT_EQ(cancel_order_response.second.id, order.id);
   }
 }
+
+TEST_F(ClientTest, testPositions) {
+  auto client = testClient();
+  auto symbol = "NFLX";
+  auto number_of_orders = 3;
+
+  // liquidate all existing positions
+  auto close_positions_response = client.closePositions();
+  EXPECT_OK(close_positions_response.first);
+
+  // submit orders
+  for (int i = 0; i < number_of_orders; i++) {
+    // submit a market order to buy 10 shares of NFLX
+    auto submit_order_response = client.submitOrder(
+        symbol, 10, alpaca::OrderSide::Buy, alpaca::OrderType::Market, alpaca::OrderTimeInForce::Day);
+    EXPECT_OK(submit_order_response.first);
+  }
+
+  // get all open positions
+  auto get_positions_response = client.getPositions();
+  EXPECT_OK(get_positions_response.first);
+  auto positions = get_positions_response.second;
+  EXPECT_GE(positions.size(), 1);
+
+  // ensure there is an open position for the stock we just purchased
+  auto found_symbol = false;
+  alpaca::Position found_position;
+  for (const auto& position : positions) {
+    if (position.symbol == symbol) {
+      found_symbol = true;
+      found_position = position;
+      break;
+    }
+  }
+  EXPECT_TRUE(found_symbol);
+
+  // directly retrieve the position for the stock we just purchased
+  auto get_position_response = client.getPosition(symbol);
+  EXPECT_OK(get_position_response.first);
+  EXPECT_EQ(found_position.asset_id, get_position_response.second.asset_id);
+
+  // close the open position for the stock we just purchased
+  auto close_position_response = client.closePosition(symbol);
+  EXPECT_OK(close_position_response.first);
+  EXPECT_EQ(close_position_response.second.asset_id, found_position.asset_id);
+}

@@ -69,4 +69,56 @@ class AccountConfigurations {
   bool suspend_trade;
   std::string trade_confirm_email;
 };
+
+/**
+ * @brief A type representing trade activity from an Alpaca account.
+ */
+class TradeActivity {
+ public:
+  /**
+   * @brief A method for deserializing JSON into the current object state.
+   *
+   * @param json The JSON string
+   *
+   * @return a Status indicating the success or faliure of the operation.
+   */
+  Status fromJSON(const std::string& json);
+
+ public:
+  std::string activity_type;
+  std::string cum_qty;
+  std::string id;
+  std::string leaves_qty;
+  std::string order_id;
+  std::string price;
+  std::string qty;
+  std::string side;
+  std::string symbol;
+  std::string transaction_time;
+  std::string type;
+};
+
+/**
+ * @brief A type representing non-trade activity from an Alpaca account.
+ */
+class NonTradeActivity {
+ public:
+  /**
+   * @brief A method for deserializing JSON into the current object state.
+   *
+   * @param json The JSON string
+   *
+   * @return a Status indicating the success or faliure of the operation.
+   */
+  Status fromJSON(const std::string& json);
+
+ public:
+  std::string activity_type;
+  std::string date;
+  std::string id;
+  std::string net_amount;
+  std::string per_share_amount;
+  std::string qty;
+  std::string symbol;
+};
 } // namespace alpaca

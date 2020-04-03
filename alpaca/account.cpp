@@ -61,4 +61,50 @@ Status AccountConfigurations::fromJSON(const std::string& json) {
 
   return Status();
 }
+
+Status TradeActivity::fromJSON(const std::string& json) {
+  rapidjson::Document d;
+  if (d.Parse(json.c_str()).HasParseError()) {
+    return Status(1, "Received parse error when deserializing trade activity JSON");
+  }
+
+  if (!d.IsObject()) {
+    return Status(1, "Deserialized valid JSON but it wasn't a trade activity object");
+  }
+
+  PARSE_STRING(activity_type, "activity_type")
+  PARSE_STRING(cum_qty, "cum_qty")
+  PARSE_STRING(id, "id")
+  PARSE_STRING(leaves_qty, "leaves_qty")
+  PARSE_STRING(order_id, "order_id")
+  PARSE_STRING(price, "price")
+  PARSE_STRING(qty, "qty")
+  PARSE_STRING(side, "side")
+  PARSE_STRING(symbol, "symbol")
+  PARSE_STRING(transaction_time, "transaction_time")
+  PARSE_STRING(type, "type")
+
+  return Status();
+}
+
+Status NonTradeActivity::fromJSON(const std::string& json) {
+  rapidjson::Document d;
+  if (d.Parse(json.c_str()).HasParseError()) {
+    return Status(1, "Received parse error when deserializing non-trade activity JSON");
+  }
+
+  if (!d.IsObject()) {
+    return Status(1, "Deserialized valid JSON but it wasn't a non-trade activity object");
+  }
+
+  PARSE_STRING(activity_type, "activity_type")
+  PARSE_STRING(date, "date")
+  PARSE_STRING(id, "id")
+  PARSE_STRING(net_amount, "net_amount")
+  PARSE_STRING(per_share_amount, "per_share_amount")
+  PARSE_STRING(qty, "qty")
+  PARSE_STRING(symbol, "symbol")
+
+  return Status();
+}
 } // namespace alpaca

@@ -110,6 +110,73 @@ std::pair<Status, AccountConfigurations> Client::updateAccountConfigurations(con
   return std::make_pair(account_configurations.fromJSON(resp->body), account_configurations);
 }
 
+std::pair<Status, std::vector<std::variant<TradeActivity, NonTradeActivity>>> Client::getAccountActivity(
+    const std::vector<std::string>& activity_types) const {
+  std::vector<std::variant<TradeActivity, NonTradeActivity>> activities;
+
+  std::string url = "/v2/account/activities";
+  if (activity_types.size() > 0) {
+    std::string query_string = "";
+    for (auto i = 0; i < activity_types.size(); ++i) {
+      query_string += activity_types[i];
+      query_string += ",";
+    }
+    query_string.pop_back();
+    url += "?activity_types=" + query_string;
+  }
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), activities);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), activities);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+
+  rapidjson::Document d;
+  if (d.Parse(resp->body.c_str()).HasParseError()) {
+    return std::make_pair(Status(1, "Received parse error when deserializing activities JSON"), activities);
+  }
+  for (auto& a : d.GetArray()) {
+    std::string activity_type;
+    if (a.HasMember("activity_type") && a["activity_type"].IsString()) {
+      activity_type = a["activity_type"].GetString();
+    } else {
+      return std::make_pair(Status(1, "Activity didn't have activity_type attribute"), activities);
+    }
+
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    a.Accept(writer);
+
+    if (activity_type == "FILL") {
+      TradeActivity activity;
+      if (auto status = activity.fromJSON(s.GetString()); !status.ok()) {
+        return std::make_pair(status, activities);
+      }
+      activities.push_back(activity);
+    } else {
+      NonTradeActivity activity;
+      if (auto status = activity.fromJSON(s.GetString()); !status.ok()) {
+        return std::make_pair(status, activities);
+      }
+      activities.push_back(activity);
+    }
+  }
+
+  return std::make_pair(Status(), activities);
+}
+
 std::pair<Status, Order> Client::getOrder(const std::string& id, const bool nested) const {
   Order order;
 

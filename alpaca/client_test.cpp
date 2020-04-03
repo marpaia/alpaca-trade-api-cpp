@@ -1,4 +1,4 @@
-#include <thread>
+#include <variant>
 
 #include "alpaca/client.h"
 #include "alpaca/testing.h"
@@ -29,6 +29,27 @@ TEST_F(ClientTest, testGetAccountConfigurations) {
   EXPECT_OK(update_account_configurations_resp.first);
   auto updated_account_configurations = update_account_configurations_resp.second;
   EXPECT_FALSE(updated_account_configurations.no_shorting);
+}
+
+TEST_F(ClientTest, testGetAccountActivity) {
+  auto client = alpaca::testClient();
+  auto get_account_activity_resp = client.getAccountActivity();
+  EXPECT_OK(get_account_activity_resp.first);
+  auto activities = get_account_activity_resp.second;
+  for (const auto& activity : activities) {
+    auto found = false;
+    try {
+      auto typed_activity = std::get<alpaca::TradeActivity>(activity);
+      found = true;
+    } catch (const std::bad_variant_access&) {
+    }
+    try {
+      auto typed_activity = std::get<alpaca::NonTradeActivity>(activity);
+      found = true;
+    } catch (const std::bad_variant_access&) {
+    }
+    EXPECT_TRUE(found);
+  }
 }
 
 TEST_F(ClientTest, testOrders) {

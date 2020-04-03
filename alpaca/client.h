@@ -2,6 +2,7 @@
 
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "alpaca/account.h"
@@ -81,6 +82,32 @@ class Client {
    * alpaca::AccountConfigurations object.
    */
   std::pair<Status, AccountConfigurations> getAccountConfigurations() const;
+
+  /**
+   * @brief Fetch Alpaca account activity.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getAccountActivity();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting account activity: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto account_activity = resp.second
+   *   LOG(INFO) << "Found " << account_activity.size()
+   *             << " elements of account activity.";
+   * @endcode
+   *
+   * @param activity_types A list of string-based representations of activity
+   * types. A full list of available activity types can be found on the docs:
+   * https://alpaca.markets/docs/api-documentation/api-v2/account-activities/#activity-types
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is either an
+   * alpaca::TradeActivity object or an alpaca::NonTradeActivity object.
+   */
+  std::pair<Status, std::vector<std::variant<TradeActivity, NonTradeActivity>>> getAccountActivity(
+      const std::vector<std::string>& activity_types = {}) const;
 
   /**
    * @brief Update Alpaca account configuration information.

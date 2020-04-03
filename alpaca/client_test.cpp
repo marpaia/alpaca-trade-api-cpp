@@ -8,7 +8,7 @@
 class ClientTest : public ::testing::Test {};
 
 TEST_F(ClientTest, testGetAccount) {
-  auto client = testClient();
+  auto client = alpaca::testClient();
   auto resp = client.getAccount();
   EXPECT_OK(resp.first);
   auto account = resp.second;
@@ -16,7 +16,7 @@ TEST_F(ClientTest, testGetAccount) {
 }
 
 TEST_F(ClientTest, testGetAccountConfigurations) {
-  auto client = testClient();
+  auto client = alpaca::testClient();
   auto get_account_configurations_resp = client.getAccountConfigurations();
   EXPECT_OK(get_account_configurations_resp.first);
   auto account_configurations = get_account_configurations_resp.second;
@@ -32,7 +32,7 @@ TEST_F(ClientTest, testGetAccountConfigurations) {
 }
 
 TEST_F(ClientTest, testOrders) {
-  auto client = testClient();
+  auto client = alpaca::testClient();
   auto number_of_orders = 3;
 
   // cancel any existing orders
@@ -78,7 +78,7 @@ TEST_F(ClientTest, testOrders) {
 }
 
 TEST_F(ClientTest, testPositions) {
-  auto client = testClient();
+  auto client = alpaca::testClient();
   auto symbol = "NFLX";
   auto number_of_orders = 3;
 
@@ -119,7 +119,7 @@ TEST_F(ClientTest, testPositions) {
 }
 
 TEST_F(ClientTest, testAssets) {
-  auto client = testClient();
+  auto client = alpaca::testClient();
   auto symbol = "NFLX";
   auto number_of_orders = 3;
 
@@ -156,10 +156,48 @@ TEST_F(ClientTest, testAssets) {
 }
 
 TEST_F(ClientTest, testClock) {
-  auto client = testClient();
+  auto client = alpaca::testClient();
   auto get_clock_response = client.getClock();
   EXPECT_OK(get_clock_response.first);
   auto clock = get_clock_response.second;
   EXPECT_NE(clock.next_open, "");
   EXPECT_NE(clock.next_close, "");
+}
+
+TEST_F(ClientTest, testWatchlists) {
+  auto client = alpaca::testClient();
+
+  // create a test watchlist
+  auto create_watchlist_response = client.createWatchlist(
+      "My Test Watchlist - " + alpaca::randomString(24),
+      std::vector<std::string>{"GOOG", "WORK", "MSFT", "AAPL", "FB", "NFLX", "TSLA", "TWTR", "NOW", "DIS"});
+  EXPECT_OK(create_watchlist_response.first);
+  auto watchlist = create_watchlist_response.second;
+  EXPECT_NE(watchlist.id, "");
+  EXPECT_GT(watchlist.assets.size(), 0);
+
+  // update the symbols in the test watchlist
+  auto update_watchlist_response = client.updateWatchlist(watchlist.id, watchlist.name, std::vector<std::string>{"FB"});
+  EXPECT_OK(update_watchlist_response.first);
+  watchlist = update_watchlist_response.second;
+  EXPECT_NE(watchlist.id, "");
+  EXPECT_EQ(watchlist.assets.size(), 1);
+
+  // add a symbol to the watchlist
+  auto add_symbol_response = client.addSymbolToWatchlist(watchlist.id, "GOOG");
+  EXPECT_OK(add_symbol_response.first);
+  watchlist = add_symbol_response.second;
+  EXPECT_NE(watchlist.id, "");
+  EXPECT_EQ(watchlist.assets.size(), 2);
+
+  // remove a symbol from the watchliist
+  auto remove_symbol_response = client.removeSymbolFromWatchlist(watchlist.id, "GOOG");
+  EXPECT_OK(remove_symbol_response.first);
+  watchlist = remove_symbol_response.second;
+  EXPECT_NE(watchlist.id, "");
+  EXPECT_EQ(watchlist.assets.size(), 1);
+
+  // delete the watchlist
+  auto delete_watchlist_response = client.deleteWatchlist(watchlist.id);
+  EXPECT_OK(delete_watchlist_response);
 }

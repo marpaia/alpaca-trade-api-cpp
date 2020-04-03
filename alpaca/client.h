@@ -11,6 +11,7 @@
 #include "alpaca/order.h"
 #include "alpaca/position.h"
 #include "alpaca/status.h"
+#include "alpaca/watchlist.h"
 
 namespace alpaca {
 
@@ -413,6 +414,146 @@ class Client {
    * of an alpaca::Clock object.
    */
   std::pair<Status, Clock> getClock() const;
+
+  /**
+   * @brief Fetch watchlists.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getWatchlists();
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting watchlists: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto watchlists = resp.second;
+   *   LOG(INFO) << "Number of watchlists: " << watchlists.size();
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is a vector of
+   * alpaca::Watchlist objects.
+   */
+  std::pair<Status, std::vector<Watchlist>> getWatchlists() const;
+
+  /**
+   * @brief Fetch a watchlist by ID.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getWatchlist("6ad592c4-b3de-4517-a21c-13fdb184d65f");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting watchlist: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto watchlist = resp.second;
+   *   LOG(INFO) << "Watchlist name: " << watchlist.name;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Watchlist object.
+   */
+  std::pair<Status, Watchlist> getWatchlist(const std::string& id) const;
+
+  /**
+   * @brief Create a watchlist.
+   *
+   * @code{.cpp}
+   *   auto resp = client.createWatchlist("Stocks To Watch", std::vector<std::string>{"AAPL", "GOOG"});
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error creating watchlist: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto watchlist = resp.second;
+   *   LOG(INFO) << "Watchlist name: " << watchlist.name;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Watchlist object.
+   */
+  std::pair<Status, Watchlist> createWatchlist(const std::string& name, const std::vector<std::string>& symbols) const;
+
+  /**
+   * @brief Update a watchlist.
+   *
+   * @code{.cpp}
+   *   auto resp = client.updateWatchlist("6ad592c4-b3de-4517-a21c-13fdb184d65f",
+   *                                      "Stocks To Watch",
+   *                                      std::vector<std::string>{"FB", "GOOG"});
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error updating watchlist: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto watchlist = resp.second;
+   *   LOG(INFO) << "Watchlist name: " << watchlist.name;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Watchlist object.
+   */
+  std::pair<Status, Watchlist> updateWatchlist(const std::string& id,
+                                               const std::string& name,
+                                               const std::vector<std::string>& symbols) const;
+
+  /**
+   * @brief Delete a watchlist.
+   *
+   * @code{.cpp}
+   *   auto status = client.deleteWatchlist("6ad592c4-b3de-4517-a21c-13fdb184d65f")
+   *   if (!status.ok()) {
+   *     LOG(ERROR) << "Error deleting watchlist: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   * @endcode
+   *
+   * @return a Status indicating the success or faliure of the operation
+   */
+  Status deleteWatchlist(const std::string& id) const;
+
+  /**
+   * @brief Add an asset to a watchlist.
+   *
+   * @code{.cpp}
+   *   auto resp = client.addSymbolToWatchlist("6ad592c4-b3de-4517-a21c-13fdb184d65f", "NFLX")
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error adding asset to watchlist: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto watchlist = resp.second;
+   *   LOG(INFO) << "Watchlist name: " << watchlist.name;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Watchlist object.
+   */
+  std::pair<Status, Watchlist> addSymbolToWatchlist(const std::string& id, const std::string& symbol) const;
+
+  /**
+   * @brief Remove an asset from a watchlist.
+   *
+   * @code{.cpp}
+   *   auto resp = client.removeAssetFromWatchlist("6ad592c4-b3de-4517-a21c-13fdb184d65f", "NFLX")
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error removing asset from watchlist: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto watchlist = resp.second;
+   *   LOG(INFO) << "Watchlist name: " << watchlist.name;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Watchlist object.
+   */
+  std::pair<Status, Watchlist> removeSymbolFromWatchlist(const std::string& id, const std::string& symbol) const;
 
  private:
   Environment environment_;

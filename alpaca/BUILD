@@ -11,6 +11,7 @@ cc_library(
         "order.cpp",
         "position.cpp",
         "status.cpp",
+        "watchlist.cpp",
     ],
     hdrs = [
         "account.h",
@@ -24,6 +25,7 @@ cc_library(
         "order.h",
         "position.h",
         "status.h",
+        "watchlist.h",
     ],
     defines = [
         "CPPHTTPLIB_OPENSSL_SUPPORT",
@@ -39,7 +41,9 @@ cc_library(
 
 cc_library(
     name = "test_helpers",
-    srcs = [],
+    srcs = [
+        "testing.cpp",
+    ],
     hdrs = [
         "testing.h",
     ],

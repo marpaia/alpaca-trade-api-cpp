@@ -666,4 +666,221 @@ std::pair<Status, Clock> Client::getClock() const {
   return std::make_pair(clock.fromJSON(resp->body), clock);
 }
 
+std::pair<Status, std::vector<Watchlist>> Client::getWatchlists() const {
+  std::vector<Watchlist> watchlists;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: /v2/watchlists";
+  auto resp = client.Get("/v2/watchlists", headers(environment_));
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/watchlists returned an empty response"), watchlists);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/watchlists returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), watchlists);
+  }
+
+  DLOG(INFO) << "Response from /v2/watchlists: " << resp->body;
+
+  rapidjson::Document d;
+  if (d.Parse(resp->body.c_str()).HasParseError()) {
+    return std::make_pair(Status(1, "Received parse error when deserializing watchlists JSON"), watchlists);
+  }
+  for (auto& o : d.GetArray()) {
+    Watchlist watchlist;
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    o.Accept(writer);
+    if (auto status = watchlist.fromJSON(s.GetString()); !status.ok()) {
+      return std::make_pair(status, watchlists);
+    }
+    watchlists.push_back(watchlist);
+  }
+
+  return std::make_pair(Status(), watchlists);
+}
+
+std::pair<Status, Watchlist> Client::getWatchlist(const std::string& id) const {
+  Watchlist watchlist;
+
+  auto url = "/v2/watchlists/" + id;
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+  return std::make_pair(watchlist.fromJSON(resp->body), watchlist);
+}
+
+std::pair<Status, Watchlist> Client::createWatchlist(const std::string& name,
+                                                     const std::vector<std::string>& symbols) const {
+  Watchlist watchlist;
+
+  rapidjson::StringBuffer s;
+  s.Clear();
+  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+  writer.StartObject();
+
+  writer.Key("name");
+  writer.String(name.c_str());
+
+  writer.Key("symbols");
+  writer.StartArray();
+  for (const auto& symbol : symbols) {
+    writer.String(symbol.c_str());
+  }
+  writer.EndArray();
+
+  writer.EndObject();
+  auto body = s.GetString();
+
+  DLOG(INFO) << "Sending request body to /v2/watchlists: " << body;
+
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  auto resp = client.Post("/v2/watchlists", headers(environment_), body, kJSONContentType);
+  if (!resp) {
+    return std::make_pair(Status(1, "Call to /v2/watchlists returned an empty response"), watchlist);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to /v2/watchlists returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  DLOG(INFO) << "Response from /v2/watchlists: " << resp->body;
+
+  return std::make_pair(watchlist.fromJSON(resp->body), watchlist);
+}
+
+std::pair<Status, Watchlist> Client::updateWatchlist(const std::string& id,
+                                                     const std::string& name,
+                                                     const std::vector<std::string>& symbols) const {
+  Watchlist watchlist;
+
+  rapidjson::StringBuffer s;
+  s.Clear();
+  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+  writer.StartObject();
+
+  writer.Key("name");
+  writer.String(name.c_str());
+
+  writer.Key("symbols");
+  writer.StartArray();
+  for (const auto& symbol : symbols) {
+    writer.String(symbol.c_str());
+  }
+  writer.EndArray();
+
+  writer.EndObject();
+  auto body = s.GetString();
+
+  auto url = "/v2/watchlists/" + id;
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Sending request to " << url << ": " << body;
+  auto resp = client.Put(url.c_str(), headers(environment_), body, kJSONContentType);
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+  return std::make_pair(watchlist.fromJSON(resp->body), watchlist);
+}
+
+Status Client::deleteWatchlist(const std::string& id) const {
+  auto url = "/v2/watchlists/" + id;
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Delete(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return Status(1, ss.str());
+  }
+
+  if (resp->status != 200 && resp->status != 204) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return Status(1, ss.str());
+  }
+  return Status();
+}
+
+std::pair<Status, Watchlist> Client::addSymbolToWatchlist(const std::string& id, const std::string& symbol) const {
+  Watchlist watchlist;
+
+  rapidjson::StringBuffer s;
+  s.Clear();
+  rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+
+  writer.StartObject();
+  writer.Key("symbol");
+  writer.String(symbol.c_str());
+  writer.EndObject();
+  auto body = s.GetString();
+
+  auto url = "/v2/watchlists/" + id;
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Post(url.c_str(), headers(environment_), body, kJSONContentType);
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+
+  return std::make_pair(watchlist.fromJSON(resp->body), watchlist);
+}
+
+std::pair<Status, Watchlist> Client::removeSymbolFromWatchlist(const std::string& id, const std::string& symbol) const {
+  Watchlist watchlist;
+
+  auto url = "/v2/watchlists/" + id + "/" + symbol;
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Delete(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), watchlist);
+  }
+  return std::make_pair(watchlist.fromJSON(resp->body), watchlist);
+}
 } // namespace alpaca

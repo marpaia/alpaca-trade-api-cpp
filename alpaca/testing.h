@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "alpaca/client.h"
 #include "gtest/gtest.h"
 
@@ -8,9 +10,15 @@
   EXPECT_EQ(status.getMessage(), "OK");                                                                                \
   EXPECT_EQ(status.getCode(), 0)
 
-alpaca::Client testClient() {
-  auto env = alpaca::Environment();
-  auto parse_status = env.parse();
-  EXPECT_OK(parse_status);
-  return alpaca::Client(env);
-}
+#define EXPECT_NOT_OK(status)                                                                                          \
+  EXPECT_FALSE(status.ok());                                                                                           \
+  EXPECT_NE(status.getMessage(), "OK");                                                                                \
+  EXPECT_NE(status.getCode(), 0)
+
+namespace alpaca {
+
+Client testClient();
+
+std::string randomString(size_t length);
+
+} // namespace alpaca

@@ -54,3 +54,26 @@ http_archive(
     strip_prefix = "boringssl-master-with-bazel",
     urls = ["https://github.com/google/boringssl/archive/master-with-bazel.tar.gz"],
 )
+
+http_archive(
+    name = "com_github_madler_zlib",
+    strip_prefix = "zlib-1.2.11",
+    urls = ["https://github.com/madler/zlib/archive/v1.2.11.tar.gz"],
+    build_file = "@alpaca_trade_api_cpp//third_party/zlib:BUILD",
+)
+
+# libuv is a multi-platform support library with a focus on asynchronous I/O.
+http_archive(
+    name = "com_github_libuv_libuv",
+    strip_prefix = "libuv-1.23.2",
+    urls = ["https://github.com/libuv/libuv/archive/v1.23.2.tar.gz"],
+    build_file = "@alpaca_trade_api_cpp//third_party/libuv:BUILD",
+)
+
+# uWebsockets is a simple, secure & standards compliant web I/O library.
+http_archive(
+    name = "com_github_unetworking_uwebsockets",
+    strip_prefix = "uWebSockets-0.14.8",
+    urls = ["https://github.com/uNetworking/uWebSockets/archive/v0.14.8.tar.gz"],
+    build_file = "@alpaca_trade_api_cpp//third_party/uwebsockets:BUILD",
+)

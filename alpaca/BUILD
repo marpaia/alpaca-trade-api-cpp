@@ -137,6 +137,18 @@ cc_test(
 )
 
 cc_test(
+    name = "portfolio_test",
+    size = "small",
+    srcs = [
+        "portfolio_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+cc_test(
     name = "position_test",
     size = "small",
     srcs = [

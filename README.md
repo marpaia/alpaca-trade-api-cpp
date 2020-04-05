@@ -58,7 +58,7 @@ The Alpaca SDK will check the environment for a number of variables which can be
 To instantiate an instance of the API client, the main classes you'll need are:
 
 - [`alpaca::Client`](./alpaca/client.h): The main API client class.
-- [`alpaca::Environment](./alpaca/config.h): A helper class for parsing the required environment variables from the local environment.
+- [`alpaca::Environment`](./alpaca/config.h): A helper class for parsing the required environment variables from the local environment.
 
 Consider the following minimal example usage of these classes:
 
@@ -495,7 +495,7 @@ For more information on the Clock API, see the official API documentation: https
 
 #### View Account Information
 
-By sending a GET request to the `/v1/account` endpoint, you can see various information about your account, such as the amount of buying power available or whether or not it has a [PDT flag](https://support.alpaca.markets/hc/en-us/articles/360012203032-Pattern-Day-Trader).
+By sending a GET request to the `/v2/account` endpoint, you can see various information about your account, such as the amount of buying power available or whether or not it has a [PDT flag](https://support.alpaca.markets/hc/en-us/articles/360012203032-Pattern-Day-Trader).
 
 ```cpp
 #include <iostream>
@@ -567,7 +567,7 @@ int main(int argc, char* argv[]) {
 
 #### Get a List of Assets
 
-If you send a GET request to our `/v1/assets` endpoint, you’ll receive a list of US equities.
+If you send a GET request to our `/v2/assets` endpoint, you’ll receive a list of US equities.
 
 ```cpp
 #include <iostream>
@@ -643,7 +643,7 @@ int main(int argc, char* argv[]) {
 
 #### See if the Market is Open
 
-With GET requests to the `/v1/calendar` and `/v1/clock` endpoints, you can check if the market is open now, or view what times the market will be open or closed on a particular date.
+With GET requests to the `/v2/calendar` and `/v2/clock` endpoints, you can check if the market is open now, or view what times the market will be open or closed on a particular date.
 
 ```cpp
 #include <iostream>
@@ -696,7 +696,7 @@ These are examples of some of the things you can do with order objects through t
 
 #### Place New Orders
 
-Orders can be placed with a POST request to the `/v1/orders` endpoint.
+Orders can be placed with a POST request to the `/v2/orders` endpoint.
 
 ```cpp
 #include <iostream>
@@ -772,7 +772,7 @@ int main(int argc, char* argv[]) {
 ```
 
 #### Get a List of Existing Orders
-If you’d like to see a list of your existing orders, you can send a get request to the `/v1/orders` endpoint.
+If you’d like to see a list of your existing orders, you can send a get request to the `/v2/orders` endpoint.
 
 ```cpp
 #include <iostream>
@@ -812,7 +812,7 @@ int main(int argc, char* argv[]) {
 
 #### View Open Positions in Your Portfolio
 
-You can view the positions in your portfolio by making a GET request to the `/v1/positions` endpoint. If you specify a symbol, you’ll see only your position for the associated stock.
+You can view the positions in your portfolio by making a GET request to the `/v2/positions` endpoint. If you specify a symbol, you’ll see only your position for the associated stock.
 
 ```cpp
 #include <iostream>

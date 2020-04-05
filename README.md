@@ -17,6 +17,12 @@ This document has the following sections:
   - [Watchlist API](#watchlist-api)
   - [Calendar API](#calendar-api)
   - [Clock API](#clock-api)
+- [Examples](#examples)
+  - [Account Examples](#account-examples)
+  - [Assets Examples](#assets-examples)
+  - [Check Market Hours](#check-market-hours)
+  - [Order Examples](#order-examples)
+  - [Portfolio Examples](#porfolio-examples)
 
 
 ## Overview
@@ -475,3 +481,365 @@ std::cout << "Next open: " << clock.next_open << std::endl;
 ```
 
 For more information on the Clock API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/clock/.
+
+## Examples
+
+### Account Examples
+
+#### View Account Information
+
+By sending a GET request to the `/v1/account` endpoint, you can see various information about your account, such as the amount of buying power available or whether or not it has a [PDT flag](https://support.alpaca.markets/hc/en-us/articles/360012203032-Pattern-Day-Trader).
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Get our account information.
+  auto account_response = client.getAccount();
+  if (auto status = account_response.first; !status.ok()) {
+    std::cerr << "Error getting account information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto account = account_response.second;
+
+  // Check if our account is restricted from trading.
+  if (account.trading_blocked) {
+    std::cout << "Account is currently restricted from trading." << std::endl;
+  }
+
+  // Check how much money we can use to open new positions.
+  std::cout << account.buying_power << " is available as buying power." << std::endl;
+
+  return 0;
+}
+```
+
+#### View Gain/Loss of Portfolio
+
+You can use the information from the account endpoint to do things like calculating the daily profit or loss of your account.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Get account info
+  auto account_response = client.getAccount();
+  if (auto status = account_response.first; !status.ok()) {
+    std::cerr << "Error getting account information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto account = account_response.second;
+
+  // Check our current balance vs. our balance at the last market close
+  std::cout << "Equity (cash + long_market_value + short_market_value): " << account.equity;
+  std::cout << "Equity as of previous trading day: " << account.last_equity;
+
+  return 0;
+}
+```
+
+### Assets Examples
+
+#### Get a List of Assets
+
+If you send a GET request to our `/v1/assets` endpoint, you’ll receive a list of US equities.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Get a list of all active assets.
+  auto assets_response = client.getAssets();
+  if (auto status = assets_response.first; !status.ok()) {
+    std::cerr << "Error getting assets information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto assets = assets_response.second;
+
+  // Filter the assets down to just those on NASDAQ.
+  std::vector<alpaca::Asset> nasdaq_assets;
+  for (const auto& asset : assets) {
+    if (asset.exchange == "NASDAQ") {
+      nasdaq_assets.push_back(asset);
+    }
+  }
+
+  std::cout << "Found " << nasdaq_assets.size() << " assets being traded on the NASDAQ exchange" << std::endl;
+
+  return 0;
+}
+```
+
+#### See If a Particular Asset is Tradable on Alpaca
+
+By sending a symbol along with our request, we can get the information about just one asset. This is useful if we just want to make sure that a particular asset is tradable before we attempt to buy it.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Check if AAPL is tradable on the Alpaca platform.
+  auto asset_response = client.getAsset("AAPL");
+  if (auto status = asset_response.first; !status.ok()) {
+    std::cerr << "Error getting asset information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto asset = asset_response.second;
+
+  if (asset.tradable) {
+    std::cout << "We can trade AAPL." << std::endl;
+  } else {
+    std::cout << "We can not trade AAPL." << std::endl;
+  }
+
+  return 0;
+}
+```
+
+### Check Market Hours
+
+#### See if the Market is Open
+
+With GET requests to the `/v1/calendar` and `/v1/clock` endpoints, you can check if the market is open now, or view what times the market will be open or closed on a particular date.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Check if the market is open now.
+  auto clock_response = client.getClock();
+  if (auto status = clock_response.first; !status.ok()) {
+    std::cerr << "Error getting clock information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto clock = clock_response.second;
+
+  if (clock.is_open) {
+    std::cout << "The market is open." << std::endl;
+  } else {
+    std::cout << "The market is closed." << std::endl;
+  }
+
+  // Check when the market was open on Dec. 1, 2018
+  auto date = "2018-12-01";
+  auto calendar_response = client.getCalendar(date, date);
+  if (auto status = calendar_response.first; !status.ok()) {
+    std::cerr << "Error getting calendar information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto days = calendar_response.second;
+  if (auto size = days.size(); size != 1) {
+    std::cerr << "Expected to receive 1 day result but got " << size << "instead." << std::endl;
+  }
+  auto day = days.front();
+  std::cout << "The market opened at " << day.open << " and closed at " << day.close << " on " << day.date << "."
+            << std::endl;
+  return 0;
+}
+```
+
+### Order Examples
+
+These are examples of some of the things you can do with order objects through the Alpaca API. For additional help understanding different types of orders and how they behave once they’re placed, please see [this page](https://docs.alpaca.markets/orders/).
+
+#### Place New Orders
+
+Orders can be placed with a POST request to the `/v1/orders` endpoint.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Submit a market order to buy 1 share of Apple at market price
+  auto buy_response =
+      client.submitOrder("AAPL", 1, alpaca::OrderSide::Buy, alpaca::OrderType::Market, alpaca::OrderTimeInForce::Day);
+  if (auto status = buy_response.first; !status.ok()) {
+    std::cerr << "Error submitting purchase order: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+
+  // Submit a limit order to attempt to sell 1 share of AMD at a particular
+  // price ($20.50) when the market opens
+  auto sell_response = client.submitOrder(
+      "AMD", 1, alpaca::OrderSide::Sell, alpaca::OrderType::Limit, alpaca::OrderTimeInForce::OPG, "20.50");
+  if (auto status = sell_response.first; !status.ok()) {
+    std::cerr << "Error submitting sell order: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+
+  return 0;
+}
+```
+
+#### Use Client Order IDs
+
+Client Order IDs can be used to organize and track specific orders in your client program.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Submit a market order to buy 1 share of Apple at market price
+  auto buy_response =
+      client.submitOrder("AAPL", 1, alpaca::OrderSide::Buy, alpaca::OrderType::Market, alpaca::OrderTimeInForce::Day, "", "", false, "my_first_order");
+  if (auto status = buy_response.first; !status.ok()) {
+    std::cerr << "Error submitting purchase order: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+
+  // Get order by it's client order ID
+  auto get_order_response = client.getOrderByClientOrderID("my_first_order");
+  if (auto status = get_order_response.first; !status.ok()) {
+    std::cerr << "Error getting order: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto order = get_order_response.second;
+
+  std::cout << "Got order by client order ID: " << order.id;
+
+  return 0;
+}
+```
+
+#### Get a List of Existing Orders
+If you’d like to see a list of your existing orders, you can send a get request to the `/v1/orders` endpoint.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Get the last 100 of our closed orders
+  auto list_orders_response = client.getOrders(alpaca::ActionStatus::Closed, 100);
+  if (auto status = list_orders_response.first; !status.ok()) {
+    std::cerr << "Error listing orders: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto orders = list_orders_response.second;
+
+  // Get only the closed orders for a particular stock
+  std::vector<alpaca::Order> aapl_orders;
+  for (const auto& order : orders) {
+    if (order.symbol == "AAPL") {
+      aapl_orders.push_back(order);
+    }
+  }
+  std::cout << "Found " << aapl_orders.size() << " closed orders for AAPL." << std::endl;
+
+  return 0;
+}
+```
+
+### Portfolio Examples
+
+#### View Open Positions in Your Portfolio
+
+You can view the positions in your portfolio by making a GET request to the `/v1/positions` endpoint. If you specify a symbol, you’ll see only your position for the associated stock.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto client = alpaca::Client(env);
+
+  // Get our position in AAPL.
+  auto get_position_response = client.getPosition("AAPL");
+  if (auto status = get_position_response.first; status.ok()) {
+    auto position = get_position_response.second;
+    std::cout << "Apple position: " << position.qty << " shares." << std::endl;
+  } else {
+    std::cout << "No AAPL position.";
+  }
+
+  // Get a list of all of our positions.
+  auto get_positions_response = client.getPositions();
+  if (auto status = get_positions_response.first; !status.ok()) {
+    std::cerr << "Error getting positions information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto positions = get_positions_response.second;
+  for (const auto& position : positions) {
+    std::cout << position.qty << " shares in " << position.symbol << std::endl;
+  }
+
+  return 0;
+}
+```

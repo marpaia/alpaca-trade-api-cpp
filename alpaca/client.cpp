@@ -736,7 +736,7 @@ std::pair<Status, Clock> Client::getClock() const {
 std::pair<Status, std::vector<Date>> Client::getCalendar(const std::string& start, const std::string& end) const {
   std::vector<Date> dates;
 
-  auto url = "/v2/calendar?start="+start+"&end="+end;
+  auto url = "/v2/calendar?start=" + start + "&end=" + end;
   httplib::SSLClient client(environment_.getAPIBaseURL());
   DLOG(INFO) << "Making request to: " << url;
   auto resp = client.Get(url.c_str(), headers(environment_));

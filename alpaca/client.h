@@ -444,7 +444,7 @@ class Client {
    */
   std::pair<Status, Clock> getClock() const;
 
-    /**
+  /**
    * @brief Fetch calendar data.
    *
    * @code{.cpp}

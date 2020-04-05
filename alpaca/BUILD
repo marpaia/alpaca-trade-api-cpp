@@ -54,7 +54,7 @@ cc_library(
     ],
     deps = [
         ":alpaca",
-        "@com_google_googletest//:gtest",
+        "@com_github_google_googletest//:gtest",
     ],
 )
 
@@ -67,7 +67,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -80,7 +80,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -93,7 +93,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -106,7 +106,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -119,7 +119,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -132,7 +132,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -145,7 +145,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 cc_test(
@@ -157,7 +157,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -170,7 +170,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 
@@ -183,6 +183,6 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )

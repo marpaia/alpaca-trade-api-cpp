@@ -13,7 +13,7 @@ load("@bazel_tools//tools/build_defs/repo:git.bzl", "git_repository")
 
 # googletest is a testing framework developed by Google.
 http_archive(
-    name = "com_google_googletest",
+    name = "com_github_google_googletest",
     strip_prefix = "googletest-release-1.10.0",
     urls = ["https://github.com/google/googletest/archive/release-1.10.0.tar.gz"],
 )

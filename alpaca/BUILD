@@ -111,6 +111,19 @@ cc_test(
 )
 
 cc_test(
+    name = "clock_test",
+    size = "small",
+    srcs = [
+        "clock_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "order_test",
     size = "small",
     srcs = [

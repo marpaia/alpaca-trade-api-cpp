@@ -7,11 +7,11 @@
 class CalendarTest : public ::testing::Test {};
 
 const std::string kDateJSON =
-  "{"
-  "\"date\": \"2018-01-03\","
-  "\"open\": \"09:30\","
-  "\"close\": \"16:00\""
-  "}";
+    "{"
+    "\"date\": \"2018-01-03\","
+    "\"open\": \"09:30\","
+    "\"close\": \"16:00\""
+    "}";
 
 TEST_F(CalendarTest, testDateFromJSON) {
   alpaca::Date date;

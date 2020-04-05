@@ -98,6 +98,19 @@ cc_test(
 )
 
 cc_test(
+    name = "position_test",
+    size = "small",
+    srcs = [
+        "position_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "status_test",
     size = "small",
     srcs = [

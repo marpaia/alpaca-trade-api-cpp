@@ -72,6 +72,19 @@ cc_test(
 )
 
 cc_test(
+    name = "asset_test",
+    size = "small",
+    srcs = [
+        "asset_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "client_test",
     size = "large",
     srcs = [

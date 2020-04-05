@@ -7,6 +7,7 @@
 
 #include "alpaca/account.h"
 #include "alpaca/asset.h"
+#include "alpaca/calendar.h"
 #include "alpaca/clock.h"
 #include "alpaca/config.h"
 #include "alpaca/order.h"
@@ -442,6 +443,30 @@ class Client {
    * of an alpaca::Clock object.
    */
   std::pair<Status, Clock> getClock() const;
+
+  /**
+   * @brief Fetch calendar data.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getCalendar("2018-01-02", "2018-01-09");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting the market calendar data: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto dates = resp.second;
+   *   for (const auto& date : dates) {
+   *     LOG(INFO) << "Market opened at " << date.open
+   *               << " and closed at " << date.close
+   *               << " on " << date.date;
+   *   }
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is vector of
+   * alpaca::Calendar objects.
+   */
+  std::pair<Status, std::vector<Date>> getCalendar(const std::string& start, const std::string& end) const;
 
   /**
    * @brief Fetch watchlists.

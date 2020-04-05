@@ -14,10 +14,10 @@ To build and test the code, you must have a working installation of [Bazel](http
 
 ## Build
 
-From the root of the repository, you can run the following to build everything:
+From the root of the repository, you can run the following to build all Alpaca libraries and tests:
 
 ```
-bazel build ...
+bazel build //alpaca/...
 ```
 
 To build a specific target in a more minimal way, you can specify an individual build target:
@@ -31,7 +31,7 @@ bazel build //alpaca:alpaca
 From the root of the repository, you can run the following to run all of the tests:
 
 ```
-bazel test ...
+bazel test //alpaca/...
 ```
 
 To run a specific test in a more minimal way, you can specify an individual test target:

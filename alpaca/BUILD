@@ -2,23 +2,11 @@ package(default_visibility = ["//visibility:private"])
 
 cc_library(
     name = "alpaca",
-    srcs = [
-        "account.cpp",
-        "asset.cpp",
-        "client.cpp",
-        "clock.cpp",
-        "config.cpp",
-        "order.cpp",
-        "portfolio.cpp",
-        "position.cpp",
-        "status.cpp",
-        "streaming.cpp",
-        "watchlist.cpp",
-    ],
     hdrs = [
         "account.h",
         "asset.h",
         "alpaca.h",
+        "calendar.h",
         "client.h",
         "clock.h",
         "config.h",
@@ -31,10 +19,24 @@ cc_library(
         "streaming.h",
         "watchlist.h",
     ],
+    srcs = [
+        "account.cpp",
+        "asset.cpp",
+        "calendar.cpp",
+        "client.cpp",
+        "clock.cpp",
+        "config.cpp",
+        "order.cpp",
+        "portfolio.cpp",
+        "position.cpp",
+        "status.cpp",
+        "streaming.cpp",
+        "watchlist.cpp",
+    ],
+    visibility = ["//visibility:public"],
     defines = [
         "CPPHTTPLIB_OPENSSL_SUPPORT",
     ],
-    visibility = ["//visibility:public"],
     deps = [
         "@com_github_google_boringssl//:ssl",
         "@com_github_google_glog//:glog",
@@ -59,10 +61,36 @@ cc_library(
 )
 
 cc_test(
-    name = "status_test",
+    name = "account_test",
     size = "small",
     srcs = [
-        "status_test.cpp",
+        "account_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "asset_test",
+    size = "small",
+    srcs = [
+        "asset_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "calendar_test",
+    size = "small",
+    srcs = [
+        "calendar_test.cpp",
     ],
     deps = [
         ":alpaca",
@@ -76,6 +104,83 @@ cc_test(
     size = "large",
     srcs = [
         "client_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "clock_test",
+    size = "small",
+    srcs = [
+        "clock_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "order_test",
+    size = "small",
+    srcs = [
+        "order_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "portfolio_test",
+    size = "small",
+    srcs = [
+        "portfolio_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+cc_test(
+    name = "position_test",
+    size = "small",
+    srcs = [
+        "position_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "status_test",
+    size = "small",
+    srcs = [
+        "status_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "watchlist_test",
+    size = "small",
+    srcs = [
+        "watchlist_test.cpp",
     ],
     deps = [
         ":alpaca",

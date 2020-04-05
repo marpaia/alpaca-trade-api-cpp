@@ -2,6 +2,7 @@
 
 #include "alpaca/account.h"
 #include "alpaca/asset.h"
+#include "alpaca/calendar.h"
 #include "alpaca/client.h"
 #include "alpaca/clock.h"
 #include "alpaca/config.h"

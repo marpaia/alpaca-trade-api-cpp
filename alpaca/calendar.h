@@ -1,12 +1,15 @@
 #pragma once
 
 #include <string>
-#include <vector>
 
 #include "alpaca/status.h"
 
 namespace alpaca {
-class PortfolioHistory {
+
+/**
+ * @brief A type representing a calendar day.
+ */
+class Date {
  public:
   /**
    * @brief A method for deserializing JSON into the current object state.
@@ -18,11 +21,8 @@ class PortfolioHistory {
   Status fromJSON(const std::string& json);
 
  public:
-  double base_value;
-  std::vector<double> equity;
-  std::vector<double> profit_loss;
-  std::vector<double> profit_loss_pct;
-  std::string timeframe;
-  std::vector<uint64_t> timestamp;
+  std::string close;
+  std::string date;
+  std::string open;
 };
 } // namespace alpaca

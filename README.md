@@ -23,6 +23,8 @@ This document has the following sections:
   - [Check Market Hours](#check-market-hours)
   - [Order Examples](#order-examples)
   - [Portfolio Examples](#porfolio-examples)
+- [Installation](#installation)
+  - [Bazel Projects]()
 
 ## Overview
 
@@ -847,4 +849,47 @@ int main(int argc, char* argv[]) {
 
   return 0;
 }
+```
+
+## Installation
+
+### Bazel Projects
+
+Since `alpaca-trade-api-cpp` is built using the [Bazel](https://www.bazel.build/) build system, the easiest way to use this library is if your C++ is also built using Bazel.
+
+To depend on the `master` branch of this repository, yuo could add the following to your `WORKSPACE` file:
+
+```py
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "com_github_marpaia_alpaca-trade-api-cpp",
+    strip_prefix = "alpaca-trade-api-cpp-master",
+    urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/master.tar.gz"],
+)
+```
+
+For stability reasons, it is worth considering using a pinned version of this library. For example, if you'd like to use version `1.0.0`, you may add the following `http_archive` stanza to your `WORKSPACE` file:
+
+```py
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "com_github_marpaia_alpaca-trade-api-cpp",
+    strip_prefix = "alpaca-trade-api-cpp-1.0.0",
+    urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/v1.0.0.tar.gz"],
+)
+```
+
+Once you've added the appropriate `http_archive` stanza to your `WORKSPACE` file, you must add the dependency to the desired target in a `BUILD` file. For example, consider the following `cpp_binary` stanza:
+
+```py
+cc_binary(
+  name = "trading_algo",
+  visibility = ["//visibility:public"],
+  srcs = ["main.cpp"],
+  deps = [
+    "@com_github_marpaia_alpaca-trade-api-cpp//alpaca:alpaca",
+  ],
+)
 ```

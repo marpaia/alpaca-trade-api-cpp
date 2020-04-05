@@ -24,10 +24,15 @@ This document has the following sections:
   - [Order Examples](#order-examples)
   - [Portfolio Examples](#porfolio-examples)
 
-
 ## Overview
 
-`alpaca-trade-api-cpp` is a C++ library for the [Alpaca Commission Free Trading API](https://alpaca.markets). The official HTTP API documentation can be found at https://docs.alpaca.markets/.
+`alpaca-trade-api-cpp` is a C++ client library for the [Alpaca Commission Free Trading API](https://alpaca.markets).
+
+Alpaca is a modern platform for algorithmic trading. Alpaca’s API is the interface for your trading algorithm to communicate with Alpaca’s brokerage service. The API allows your trading algorithm to access real-time price data, place orders, maintain watchlists, manage your portfolio, and more. In order to start trading with Alpaca API, please sign up at https://alpaca.markets/.
+
+Once you have signed up and have familiarized yourself with the API, please check out the C++ client documentation and begin implementing your own algorithm! If you'd rather use a language other than C++, clients are available in several other languages that may better satisfy your needs. You can browse the available API client libraries [here](https://alpaca.markets/docs/api-documentation/client-sdk/).
+
+Always a useful resource, the official HTTP API documentation can be found at https://docs.alpaca.markets/.
 
 ## Contributing
 

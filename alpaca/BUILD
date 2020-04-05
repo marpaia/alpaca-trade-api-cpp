@@ -85,6 +85,19 @@ cc_test(
 )
 
 cc_test(
+    name = "order_test",
+    size = "small",
+    srcs = [
+        "order_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "status_test",
     size = "small",
     srcs = [

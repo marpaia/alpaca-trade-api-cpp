@@ -24,7 +24,7 @@ This document has the following sections:
   - [Order Examples](#order-examples)
   - [Portfolio Examples](#porfolio-examples)
 - [Installation](#installation)
-  - [Bazel Projects]()
+  - [Bazel Projects](#bazel-projects)
 
 ## Overview
 

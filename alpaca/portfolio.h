@@ -18,10 +18,10 @@ class PortfolioHistory {
   Status fromJSON(const std::string& json);
 
  public:
-  float base_value;
-  std::vector<float> equity;
-  std::vector<float> profit_loss;
-  std::vector<float> profit_loss_pct;
+  double base_value;
+  std::vector<double> equity;
+  std::vector<double> profit_loss;
+  std::vector<double> profit_loss_pct;
   std::string timeframe;
   std::vector<uint64_t> timestamp;
 };

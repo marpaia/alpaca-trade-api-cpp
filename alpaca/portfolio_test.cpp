@@ -24,4 +24,5 @@ TEST_F(PortfolioTest, testPortfolioHistoryFromJSON) {
   EXPECT_EQ(portfolio_history.profit_loss.size(), 3);
   EXPECT_EQ(portfolio_history.profit_loss_pct.size(), 3);
   EXPECT_EQ(portfolio_history.timeframe, "15Min");
+  EXPECT_EQ(portfolio_history.base_value, 27411.93);
 }

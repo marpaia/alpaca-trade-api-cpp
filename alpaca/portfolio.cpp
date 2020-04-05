@@ -14,10 +14,10 @@ Status PortfolioHistory::fromJSON(const std::string& json) {
     return Status(1, "Deserialized valid JSON but it wasn't a portfolio object");
   }
 
-  PARSE_FLOAT(base_value, "base_value")
-  PARSE_VECTOR_FLOATS(equity, "equity")
-  PARSE_VECTOR_FLOATS(profit_loss, "profit_loss")
-  PARSE_VECTOR_FLOATS(profit_loss_pct, "profit_loss_pct")
+  PARSE_DOUBLE(base_value, "base_value")
+  PARSE_VECTOR_DOUBLES(equity, "equity")
+  PARSE_VECTOR_DOUBLES(profit_loss, "profit_loss")
+  PARSE_VECTOR_DOUBLES(profit_loss_pct, "profit_loss_pct")
   PARSE_STRING(timeframe, "timeframe")
   PARSE_VECTOR_UINT64(timestamp, "timestamp")
 

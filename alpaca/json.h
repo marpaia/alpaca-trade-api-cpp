@@ -15,9 +15,25 @@
     var = d[name].GetBool();                                                                                           \
   }
 
+#define PARSE_DOUBLE(var, name)                                                                                        \
+  if (d.HasMember(name) && d[name].IsNumber()) {                                                                       \
+    var = d[name].GetDouble();                                                                                         \
+  }
+
 #define PARSE_FLOAT(var, name)                                                                                         \
   if (d.HasMember(name) && d[name].IsNumber()) {                                                                       \
     var = d[name].GetFloat();                                                                                          \
+  }
+
+#define PARSE_VECTOR_DOUBLES(var, name)                                                                                \
+  if (d.HasMember(name) && d[name].IsArray()) {                                                                        \
+    std::vector<double> items;                                                                                         \
+    for (auto& item : d[name].GetArray()) {                                                                            \
+      if (item.IsNumber()) {                                                                                           \
+        items.push_back(item.GetDouble());                                                                             \
+      }                                                                                                                \
+    }                                                                                                                  \
+    var = items;                                                                                                       \
   }
 
 #define PARSE_VECTOR_FLOATS(var, name)                                                                                 \

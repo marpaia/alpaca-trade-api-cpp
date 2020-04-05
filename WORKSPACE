@@ -55,6 +55,7 @@ http_archive(
     urls = ["https://github.com/google/boringssl/archive/master-with-bazel.tar.gz"],
 )
 
+# zlib is a general purpose data compression library.
 http_archive(
     name = "com_github_madler_zlib",
     strip_prefix = "zlib-1.2.11",

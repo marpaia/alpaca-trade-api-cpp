@@ -733,6 +733,46 @@ std::pair<Status, Clock> Client::getClock() const {
   return std::make_pair(clock.fromJSON(resp->body), clock);
 }
 
+std::pair<Status, std::vector<Date>> Client::getCalendar(const std::string& start, const std::string& end) const {
+  std::vector<Date> dates;
+
+  auto url = "/v2/calendar?start="+start+"&end="+end;
+  httplib::SSLClient client(environment_.getAPIBaseURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), dates);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), dates);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+
+  rapidjson::Document d;
+  if (d.Parse(resp->body.c_str()).HasParseError()) {
+    return std::make_pair(Status(1, "Received parse error when deserializing calendar JSON"), dates);
+  }
+  for (auto& o : d.GetArray()) {
+    Date date;
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    o.Accept(writer);
+    if (auto status = date.fromJSON(s.GetString()); !status.ok()) {
+      return std::make_pair(status, dates);
+    }
+    dates.push_back(date);
+  }
+
+  return std::make_pair(Status(), dates);
+}
+
 std::pair<Status, std::vector<Watchlist>> Client::getWatchlists() const {
   std::vector<Watchlist> watchlists;
 

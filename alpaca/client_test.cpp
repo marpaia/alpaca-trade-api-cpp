@@ -185,6 +185,18 @@ TEST_F(ClientTest, testClock) {
   EXPECT_NE(clock.next_close, "");
 }
 
+TEST_F(ClientTest, testCalendar) {
+  auto client = alpaca::testClient();
+  auto get_calendar_response = client.getCalendar("2018-01-02", "2018-01-09");
+  EXPECT_OK(get_calendar_response.first);
+  auto dates = get_calendar_response.second;
+  for (const auto& date : dates) {
+    EXPECT_NE(date.date, "");
+    EXPECT_NE(date.open, "");
+    EXPECT_NE(date.close, "");
+  }
+}
+
 TEST_F(ClientTest, testWatchlists) {
   auto client = alpaca::testClient();
 

@@ -5,6 +5,7 @@ cc_library(
     srcs = [
         "account.cpp",
         "asset.cpp",
+        "calendar.cpp",
         "client.cpp",
         "clock.cpp",
         "config.cpp",
@@ -18,6 +19,7 @@ cc_library(
         "account.h",
         "asset.h",
         "alpaca.h",
+        "calendar.h",
         "client.h",
         "clock.h",
         "config.h",

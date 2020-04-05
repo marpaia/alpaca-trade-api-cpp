@@ -6,6 +6,8 @@ This document has the following sections:
 - [Contributing](#contributing)
 - [Client Usage](#client-usage)
   - [Environment Variables](#environment-variables)
+  - [Client Instantiation](#client-instantiation)
+  - [Error Handling](#error-handling)
   - [Account API](#account-api)
   - [Account Configuration API](#account-configuration-api)
   - [Account Activities API](#account-activities-api)
@@ -38,15 +40,107 @@ The Alpaca SDK will check the environment for a number of variables which can be
 | APCA_API_BASE_URL | paper-api.alpaca.markets | The endpoint for API calls. Note that the default is paper so you must specify this to switch to the live endpoint. |
 | APCA_API_DATA_URL | data.alpaca.markets | The endpoint for the Data API. |
 
+### Client Instantiation
+
+To instantiate an instance of the API client, the main classes you'll need are:
+
+- [`alpaca::Client`](./alpaca/client.h): The main API client class.
+- [`alpaca::Environment](./alpaca/config.h): A helper class for parsing the required environment variables from the local environment.
+
+Consider the following minimal example usage of these classes:
+
+```cpp
+#include <iostream>
+
+#include "alpaca/client.h"
+#include "alpaca/config.h"
+
+int main(int argc, char* argv[]) {
+  // Parse the required environment variables using the supplied helper utility
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cout << "Error parsing config from environment: "
+              << status.getMessage()
+              << std::endl;
+    return status.getCode();
+  }
+
+  // Instantiate an instance of the API client
+  auto client = alpaca::Client(env)
+}
+```
+
+### Error Handling
+
+With few exceptions, most API client methods return a `std::pair` where the first item in the pair is an instance of `alpaca::Status`. The `alpaca::Status` class is used to represent the success or failure of the operation. The second item in the pair is the value that is requested, the response of API operation, etc.
+
+```cpp
+// Call the API
+auto resp = client.getOrders();
+
+// Check the status returned by the API client before using the response
+if (auto status = resp.first; !status.ok()) {
+  std::cerr << "The API operation failed: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Now you can safely use the response object returned by the API
+auto orders = resp.second;
+for (const auto& order : orders) {
+  std::cout << "Order ID: " << order.id << std::endl;
+}
+```
+
 ### Account API
 
 The account API serves important information related to an account, including account status, funds available for trade, funds available for withdrawal, and various flags relevant to an account’s ability to trade. An account maybe be blocked for just for trades (the `trades_blocked` property of `alpaca::Account`) or for both trades and transfers (the `account_blocked` property of `alpaca::Account`) if Alpaca identifies the account to engaging in any suspicious activity. Also, in accordance with FINRA’s pattern day trading rule, an account may be flagged for pattern day trading (the `pattern_day_trader` property of `alpaca::Account`), which would inhibit an account from placing any further day-trades.
+
+Consider the following example which exhibits how one can retrieve account information about the account which is currently authenticated.
+
+```cpp
+auto resp = client.getAccount();
+if (auto status = resp.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+auto account = resp.second;
+std::cout << "Account has buying power: " << account.buying_power << std::endl;
+```
 
 For more information the Account API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account/.
 
 ### Account Configuration API
 
 The account configuration API provides custom configurations about your trading account settings. These configurations control various allow you to modify settings to suit your trading needs. For DTMC protection, see the documentation on [Day Trade Margin Call Protection](https://alpaca.markets/docs/trading-on-alpaca/user-protections/#day-trade-margin-call-dtmc-protection-at-alpaca).
+
+Consider the following example which exhibits how one can check whether or not shorting is enabled and then conditionally enable shorting if it's not.
+
+```cpp
+auto resp = client.getAccountConfigurations();
+if (auto status = resp.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+auto account_configurations = resp.second;
+if (account_configurations.no_shorting) {
+  std::cout << "Shorting is disabled for this account." << std::endl;
+
+  auto update_resp = client.updateAccountConfigurations(
+    false,
+    account_configurations.dtbp_check,
+    account_configurations.trade_confirm_email,
+    account_configurations.suspend_trade
+  );
+  if (auto status = update_resp.first; !status.ok()) {
+    std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  std::cout << "Enabled shorting." << std::endl;
+}
+std::cout << "Shorting is enabled for this account." << std::endl;
+```
 
 For more information on the Account Configuration API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account-configuration/.
 
@@ -90,6 +184,35 @@ The account activities API provides access to a historical record of transaction
 | `SSO` | Stock spinoff |
 | `SSP` | Stock split |
 
+Consider the following example which exhibits how one can enumerate both trade and non-trade activity:
+
+```cpp
+auto resp = client.getAccountActivity();
+if (auto status = resp.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode()
+}
+
+auto activities = resp.second;
+for (const auto& activity : activities) {
+  try {
+    auto trade_activity = std::get<alpaca::TradeActivity>(activity);
+    std::cout << "Trade Activity: " << std::endl;
+    std::cout << "  Symbol = " << trade_activity.symbol << std::endl;
+    std::cout << "  Side = " << trade_activity.side << std::endl;
+    std::cout << "  Price = " << trade_activity.price << std::endl;
+    std::cout << "  Quantity = " << trade_activity.qty << std::endl;
+  } catch (const std::bad_variant_access&) {}
+  try {
+    auto non_trade_activity = std::get<alpaca::NonTradeActivity>(activity);
+    std::cout << "Non-Trade Activity: " << std::endl;
+    std::cout << "  Activity Type = " << non_trade_activity.activity_type << std::endl;
+    std::cout << "  Symbol = " << non_trade_activity.symbol << std::endl;
+    std::cout << "  Quantity = " << non_trade_activity.qty << std::endl;
+  } catch (const std::bad_variant_access&) {}
+}
+```
+
 For more information on the Account Activities API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account-activities/.
 
 ### Orders API
@@ -98,11 +221,102 @@ The Orders API allows a user to monitor, place and cancel their orders with Alpa
 
 For further details on order functionality, please see the [Trading On Alpaca - Orders](https://alpaca.markets/docs/trading-on-alpaca/orders/) page.
 
+Consider the following example which exhibits buying 10 shares of NFLX, using the API to retieve the order by ID, and then using the API to cancel all open orders.
+
+```cpp
+// Submit an order to buy 10 shares of NFLX
+auto submit_order_response = client.submitOrder(
+  "NFLX",
+  10,
+  alpaca::OrderSide::Buy,
+  alpaca::OrderType::Market,
+  alpaca::OrderTimeInForce::Day
+);
+if (auto status = submit_order_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+auto order1 = submit_order_response.second;
+
+// Use the API to retrieve the order we just placed.
+auto get_order_response = client.getOrder(order.id);
+if (auto status = get_order_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+auto order2 = get_order_response.second;
+
+// Assert the client order IDs are the same for both order objects
+assert(order1.client_order_id == order2.client_order_id);
+
+// Cancel existing orders
+auto cancel_orders_response = client.cancelOrders();
+if (auto status = cancel_orders_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+```
+
 For more information on the Orders API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/orders/.
 
 ### Positions API
 
 The positions API provides information about an account’s current open positions. The response will include information such as cost basis, shares traded, and market value, which will be updated live as price information is updated. Once a position is closed, it will no longer be queryable through this API.
+
+Consider the following example which exhibits how to perform various API operations with the positions API.
+
+```cpp
+// Liquidate all existing positions
+auto close_positions_response = client.closePositions()
+if (auto status = close_positions_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Submit an order to buy 10 shares of NFLX
+auto symbol = "NFLX";
+auto submit_order_response = client.submitOrder(
+  symbol,
+  10,
+  alpaca::OrderSide::Buy,
+  alpaca::OrderType::Market,
+  alpaca::OrderTimeInForce::Day
+);
+if (auto status = submit_order_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Get all open positions
+auto get_positions_response = client.getPositions();
+if (auto status = get_positions_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Ensure there is an open position for the stock we just purchased
+auto found_symbol = false;
+alpaca::Position found_position;
+for (const auto& position : positions) {
+  if (position.symbol == symbol) {
+    found_symbol = true;
+    found_position = position;
+    break;
+  }
+}
+assert(found_symbol);
+
+// Directly retrieve the position for the stock we just purchased
+auto get_position_response = client.getPosition(symbol);
+if (auto status = get_position_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Ensure the asset ID is the same for the position we found while enumerating
+// all positions as well as the position we retrieved by symbol
+assert(found_position.asset_id, get_position_response.second.asset_id);
+```
 
 For more information on the Positions API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/positions/.
 
@@ -110,11 +324,114 @@ For more information on the Positions API, see the official API documentation: h
 
 The assets API serves as the master list of assets available for trade and data consumption from Alpaca. Assets are sorted by asset class, exchange and symbol. Some assets are only available for data consumption via Polygon, and are not tradable with Alpaca. These `alpaca::Asset` objects will be marked with the `tradable` property set to `false`.
 
+Consider the following example which exhibits how to perform various API operations with the assets API.
+
+```cpp
+// Submit an order to buy 10 shares of NFLX
+auto symbol = "NFLX";
+auto submit_order_response = client.submitOrder(
+  symbol,
+  10,
+  alpaca::OrderSide::Buy,
+  alpaca::OrderType::Market,
+  alpaca::OrderTimeInForce::Day
+);
+if (auto status = submit_order_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Get all assets
+auto get_assets_response = client.getAssets();
+if (auto status = get_assets_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Ensure there is an asset for the stock we just purchased
+auto found_symbol = false;
+alpaca::Asset found_asset;
+for (const auto& asset : assets) {
+  if (asset.symbol == symbol) {
+    found_symbol = true;
+    found_asset = asset;
+    break;
+  }
+}
+assert(found_asset);
+
+// Directly retrieve the asset for the stock we just purchased
+auto get_asset_response = client.getAsset(symbol);
+if (auto status = get_asset_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+// Ensure the ID is the same for the asset we found while enumerating all
+// asset as well as the asset we retrieved by symbol
+assert(found_asset.id, get_asset_response.second.id);
+```
+
 For more information on the Assets API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/assets/.
 
 ### Watchlist API
 
 The watchlist API provides CRUD operation for the account’s watchlist. An account can have multiple watchlists and each is uniquely identified by id but can also be addressed by user-defined name. Each watchlist is an ordered list of assets.
+
+Consider the following example which exhibits how to use the API to create, read, update, and delete a watchlist.
+
+```cpp
+// Create a watchlist
+auto create_watchlist_response = client.createWatchlist("My Watchlist", {"GOOG"});
+ if (auto status = create_watchlist_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+auto watchlist = create_watchlist_response.second;
+
+// Read the watchlist
+auto get_update_response = client.getWatchlist(watchlist.id);
+ if (auto status = get_watchlist_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+auto watchlist = get_watchlist_response.second;
+
+// Update the symbols in the watchlist
+auto update_watchlist_response = client.updateWatchlist(
+  watchlist.id,
+  watchlist.name,
+  {"GOOG", "FB"}
+);
+ if (auto status = update_watchlist_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+watchlist = update_watchlist_response.second;
+
+// Add a symbol to the watchlist
+auto add_symbol_response = client.addSymbolToWatchlist(watchlist.id, "AAPL");
+ if (auto status = add_symbol_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+watchlist = add_symbol_response.second;
+
+// Remove a symbol from the watchliist
+auto remove_symbol_response = client.removeSymbolFromWatchlist(watchlist.id, "AAPL");
+ if (auto status = remove_symbol_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+watchlist = remove_symbol_response.second;
+
+// Delete the watchlist
+auto delete_watchlist_response = client.deleteWatchlist(watchlist.id);
+if (auto status = delete_watchlist_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+```
 
 For more information on the Watchlist API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/watchlist/.
 
@@ -122,10 +439,39 @@ For more information on the Watchlist API, see the official API documentation: h
 
 The calendar API serves the full list of market days from 1970 to 2029. It can also be queried by specifying a start and/or end time to narrow down the results. In addition to the dates, the response also contains the specific open and close times for the market days, taking into account early closures.
 
+Consider the following example which exhibits how to find the open and close times for a date range.
+
+```cpp
+auto get_calendar_response = client.getCalendar("2018-01-02", "2018-01-09");
+if (auto status = get_calendar_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+auto dates = get_calendar_response.second;
+for (const auto& date : dates) {
+  std::cout << "On " << date.date <<
+            << ", the market opened at " << date.open
+            << " and closed at " << date.close
+            << "." << std::endl;
+}
+```
+
 For more information on the Calendar API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/calendar/.
 
 ### Clock API
 
 The clock API serves the current market timestamp, whether or not the market is currently open, as well as the times of the next market open and close.
+
+Consider the following example which exhibits using the API to determiine the time the market will next open:
+
+```cpp
+auto get_clock_response = client.getClock();
+if (auto status = get_clock_response.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+auto clock = get_clock_response.second;
+std::cout << "Next open: " << clock.next_open << std::endl;
+```
 
 For more information on the Clock API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/clock/.

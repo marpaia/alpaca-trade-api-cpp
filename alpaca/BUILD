@@ -2,19 +2,6 @@ package(default_visibility = ["//visibility:private"])
 
 cc_library(
     name = "alpaca",
-    srcs = [
-        "account.cpp",
-        "asset.cpp",
-        "calendar.cpp",
-        "client.cpp",
-        "clock.cpp",
-        "config.cpp",
-        "order.cpp",
-        "portfolio.cpp",
-        "position.cpp",
-        "status.cpp",
-        "watchlist.cpp",
-    ],
     hdrs = [
         "account.h",
         "asset.h",
@@ -31,10 +18,23 @@ cc_library(
         "status.h",
         "watchlist.h",
     ],
+    srcs = [
+        "account.cpp",
+        "asset.cpp",
+        "calendar.cpp",
+        "client.cpp",
+        "clock.cpp",
+        "config.cpp",
+        "order.cpp",
+        "portfolio.cpp",
+        "position.cpp",
+        "status.cpp",
+        "watchlist.cpp",
+    ],
+    visibility = ["//visibility:public"],
     defines = [
         "CPPHTTPLIB_OPENSSL_SUPPORT",
     ],
-    visibility = ["//visibility:public"],
     deps = [
         "@com_github_google_boringssl//:ssl",
         "@com_github_google_glog//:glog",

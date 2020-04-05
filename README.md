@@ -8,15 +8,15 @@ This document has the following sections:
   - [Environment Variables](#environment-variables)
   - [Client Instantiation](#client-instantiation)
   - [Error Handling](#error-handling)
-  - [Account API](#account-api)
-  - [Account Configuration API](#account-configuration-api)
-  - [Account Activities API](#account-activities-api)
   - [Orders API](#orders-api)
   - [Positions API](#positions-api)
   - [Assets API](#assets-api)
   - [Watchlist API](#watchlist-api)
   - [Calendar API](#calendar-api)
   - [Clock API](#clock-api)
+  - [Account API](#account-api)
+  - [Account Configuration API](#account-configuration-api)
+  - [Account Activities API](#account-activities-api)
 - [Examples](#examples)
   - [Account Examples](#account-examples)
   - [Assets Examples](#assets-examples)
@@ -103,130 +103,6 @@ for (const auto& order : orders) {
   std::cout << "Order ID: " << order.id << std::endl;
 }
 ```
-
-### Account API
-
-The account API serves important information related to an account, including account status, funds available for trade, funds available for withdrawal, and various flags relevant to an account’s ability to trade. An account maybe be blocked for just for trades (the `trades_blocked` property of `alpaca::Account`) or for both trades and transfers (the `account_blocked` property of `alpaca::Account`) if Alpaca identifies the account to engaging in any suspicious activity. Also, in accordance with FINRA’s pattern day trading rule, an account may be flagged for pattern day trading (the `pattern_day_trader` property of `alpaca::Account`), which would inhibit an account from placing any further day-trades.
-
-Consider the following example which exhibits how one can retrieve account information about the account which is currently authenticated.
-
-```cpp
-auto resp = client.getAccount();
-if (auto status = resp.first; !status.ok()) {
-  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
-  return status.getCode();
-}
-
-auto account = resp.second;
-std::cout << "Account has buying power: " << account.buying_power << std::endl;
-```
-
-For more information the Account API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account/.
-
-### Account Configuration API
-
-The account configuration API provides custom configurations about your trading account settings. These configurations control various allow you to modify settings to suit your trading needs. For DTMC protection, see the documentation on [Day Trade Margin Call Protection](https://alpaca.markets/docs/trading-on-alpaca/user-protections/#day-trade-margin-call-dtmc-protection-at-alpaca).
-
-Consider the following example which exhibits how one can check whether or not shorting is enabled and then conditionally enable shorting if it's not.
-
-```cpp
-auto resp = client.getAccountConfigurations();
-if (auto status = resp.first; !status.ok()) {
-  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
-  return status.getCode();
-}
-
-auto account_configurations = resp.second;
-if (account_configurations.no_shorting) {
-  std::cout << "Shorting is disabled for this account." << std::endl;
-
-  auto update_resp = client.updateAccountConfigurations(
-    false,
-    account_configurations.dtbp_check,
-    account_configurations.trade_confirm_email,
-    account_configurations.suspend_trade
-  );
-  if (auto status = update_resp.first; !status.ok()) {
-    std::cerr << "Error calling API: " << status.getMessage() << std::endl;
-    return status.getCode();
-  }
-  std::cout << "Enabled shorting." << std::endl;
-}
-std::cout << "Shorting is enabled for this account." << std::endl;
-```
-
-For more information on the Account Configuration API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account-configuration/.
-
-### Account Activities API
-
-The account activities API provides access to a historical record of transaction activities that have impacted your account. Trade execution activities and non-trade activities, such as dividend payments, are both reported through this endpoint. At the time of this writing, the following are the types of activities that may be reported:
-
-| Activity Type | Description |
-| --- | --- |
-| `FILL` |  Order fills (both partial and full fills) |
-| `TRANS` | Cash transactions (both CSD and CSR) |
-| `MISC` | Miscellaneous or rarely used activity types (All types except those in `TRANS`, `DIV`, or `FILL`) |
-| `ACATC` | ACATS IN/OUT (Cash) |
-| `ACATS` | ACATS IN/OUT (Securities) |
-| `CSD` | Cash disbursement(+) |
-| `CSR` | Cash receipt(-) |
-| `DIV` | Dividends |
-| `DIVCGL` | Dividend (capital gain long term) |
-| `DIVCGS` | Dividend (capital gain short term) |
-| `DIVFEE` | Dividend fee |
-| `DIVFT` | Dividend adjusted (Foreign Tax Withheld) |
-| `DIVNRA` | Dividend adjusted (NRA Withheld) |
-| `DIVROC` | Dividend return of capital |
-| `DIVTW` | Dividend adjusted (Tefra Withheld) |
-| `DIVTXEX` | Dividend (tax exempt) |
-| `INT` | Interest (credit/margin) |
-| `INTNRA` | Interest adjusted (NRA Withheld) |
-| `INTTW` | Interest adjusted (Tefra Withheld) |
-| `JNL` | Journal entry |
-| `JNLC` | Journal entry (cash) |
-| `JNLS` | Journal entry (stock) |
-| `MA` | Merger/Acquisition |
-| `NC` | Name change |
-| `OPASN` | Option assignment |
-| `OPEXP` | Option expiration |
-| `OPXRC` | Option exercise |
-| `PTC` | Pass Thru Charge |
-| `PTR` | Pass Thru Rebate |
-| `REORG` | Reorg CA |
-| `SC` | Symbol change |
-| `SSO` | Stock spinoff |
-| `SSP` | Stock split |
-
-Consider the following example which exhibits how one can enumerate both trade and non-trade activity:
-
-```cpp
-auto resp = client.getAccountActivity();
-if (auto status = resp.first; !status.ok()) {
-  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
-  return status.getCode()
-}
-
-auto activities = resp.second;
-for (const auto& activity : activities) {
-  try {
-    auto trade_activity = std::get<alpaca::TradeActivity>(activity);
-    std::cout << "Trade Activity: " << std::endl;
-    std::cout << "  Symbol = " << trade_activity.symbol << std::endl;
-    std::cout << "  Side = " << trade_activity.side << std::endl;
-    std::cout << "  Price = " << trade_activity.price << std::endl;
-    std::cout << "  Quantity = " << trade_activity.qty << std::endl;
-  } catch (const std::bad_variant_access&) {}
-  try {
-    auto non_trade_activity = std::get<alpaca::NonTradeActivity>(activity);
-    std::cout << "Non-Trade Activity: " << std::endl;
-    std::cout << "  Activity Type = " << non_trade_activity.activity_type << std::endl;
-    std::cout << "  Symbol = " << non_trade_activity.symbol << std::endl;
-    std::cout << "  Quantity = " << non_trade_activity.qty << std::endl;
-  } catch (const std::bad_variant_access&) {}
-}
-```
-
-For more information on the Account Activities API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account-activities/.
 
 ### Orders API
 
@@ -488,6 +364,130 @@ std::cout << "Next open: " << clock.next_open << std::endl;
 ```
 
 For more information on the Clock API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/clock/.
+
+### Account API
+
+The account API serves important information related to an account, including account status, funds available for trade, funds available for withdrawal, and various flags relevant to an account’s ability to trade. An account maybe be blocked for just for trades (the `trades_blocked` property of `alpaca::Account`) or for both trades and transfers (the `account_blocked` property of `alpaca::Account`) if Alpaca identifies the account to engaging in any suspicious activity. Also, in accordance with FINRA’s pattern day trading rule, an account may be flagged for pattern day trading (the `pattern_day_trader` property of `alpaca::Account`), which would inhibit an account from placing any further day-trades.
+
+Consider the following example which exhibits how one can retrieve account information about the account which is currently authenticated.
+
+```cpp
+auto resp = client.getAccount();
+if (auto status = resp.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+auto account = resp.second;
+std::cout << "Account has buying power: " << account.buying_power << std::endl;
+```
+
+For more information the Account API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account/.
+
+### Account Configuration API
+
+The account configuration API provides custom configurations about your trading account settings. These configurations control various allow you to modify settings to suit your trading needs. For DTMC protection, see the documentation on [Day Trade Margin Call Protection](https://alpaca.markets/docs/trading-on-alpaca/user-protections/#day-trade-margin-call-dtmc-protection-at-alpaca).
+
+Consider the following example which exhibits how one can check whether or not shorting is enabled and then conditionally enable shorting if it's not.
+
+```cpp
+auto resp = client.getAccountConfigurations();
+if (auto status = resp.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+
+auto account_configurations = resp.second;
+if (account_configurations.no_shorting) {
+  std::cout << "Shorting is disabled for this account." << std::endl;
+
+  auto update_resp = client.updateAccountConfigurations(
+    false,
+    account_configurations.dtbp_check,
+    account_configurations.trade_confirm_email,
+    account_configurations.suspend_trade
+  );
+  if (auto status = update_resp.first; !status.ok()) {
+    std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  std::cout << "Enabled shorting." << std::endl;
+}
+std::cout << "Shorting is enabled for this account." << std::endl;
+```
+
+For more information on the Account Configuration API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account-configuration/.
+
+### Account Activities API
+
+The account activities API provides access to a historical record of transaction activities that have impacted your account. Trade execution activities and non-trade activities, such as dividend payments, are both reported through this endpoint. At the time of this writing, the following are the types of activities that may be reported:
+
+| Activity Type | Description |
+| --- | --- |
+| `FILL` |  Order fills (both partial and full fills) |
+| `TRANS` | Cash transactions (both CSD and CSR) |
+| `MISC` | Miscellaneous or rarely used activity types (All types except those in `TRANS`, `DIV`, or `FILL`) |
+| `ACATC` | ACATS IN/OUT (Cash) |
+| `ACATS` | ACATS IN/OUT (Securities) |
+| `CSD` | Cash disbursement(+) |
+| `CSR` | Cash receipt(-) |
+| `DIV` | Dividends |
+| `DIVCGL` | Dividend (capital gain long term) |
+| `DIVCGS` | Dividend (capital gain short term) |
+| `DIVFEE` | Dividend fee |
+| `DIVFT` | Dividend adjusted (Foreign Tax Withheld) |
+| `DIVNRA` | Dividend adjusted (NRA Withheld) |
+| `DIVROC` | Dividend return of capital |
+| `DIVTW` | Dividend adjusted (Tefra Withheld) |
+| `DIVTXEX` | Dividend (tax exempt) |
+| `INT` | Interest (credit/margin) |
+| `INTNRA` | Interest adjusted (NRA Withheld) |
+| `INTTW` | Interest adjusted (Tefra Withheld) |
+| `JNL` | Journal entry |
+| `JNLC` | Journal entry (cash) |
+| `JNLS` | Journal entry (stock) |
+| `MA` | Merger/Acquisition |
+| `NC` | Name change |
+| `OPASN` | Option assignment |
+| `OPEXP` | Option expiration |
+| `OPXRC` | Option exercise |
+| `PTC` | Pass Thru Charge |
+| `PTR` | Pass Thru Rebate |
+| `REORG` | Reorg CA |
+| `SC` | Symbol change |
+| `SSO` | Stock spinoff |
+| `SSP` | Stock split |
+
+Consider the following example which exhibits how one can enumerate both trade and non-trade activity:
+
+```cpp
+auto resp = client.getAccountActivity();
+if (auto status = resp.first; !status.ok()) {
+  std::cerr << "Error calling API: " << status.getMessage() << std::endl;
+  return status.getCode()
+}
+
+auto activities = resp.second;
+for (const auto& activity : activities) {
+  try {
+    auto trade_activity = std::get<alpaca::TradeActivity>(activity);
+    std::cout << "Trade Activity: " << std::endl;
+    std::cout << "  Symbol = " << trade_activity.symbol << std::endl;
+    std::cout << "  Side = " << trade_activity.side << std::endl;
+    std::cout << "  Price = " << trade_activity.price << std::endl;
+    std::cout << "  Quantity = " << trade_activity.qty << std::endl;
+  } catch (const std::bad_variant_access&) {}
+  try {
+    auto non_trade_activity = std::get<alpaca::NonTradeActivity>(activity);
+    std::cout << "Non-Trade Activity: " << std::endl;
+    std::cout << "  Activity Type = " << non_trade_activity.activity_type << std::endl;
+    std::cout << "  Symbol = " << non_trade_activity.symbol << std::endl;
+    std::cout << "  Quantity = " << non_trade_activity.qty << std::endl;
+  } catch (const std::bad_variant_access&) {}
+}
+```
+
+For more information on the Account Activities API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account-activities/.
 
 ## Examples
 

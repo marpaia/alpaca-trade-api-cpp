@@ -11,8 +11,15 @@ int main(int argc, char* argv[]) {
   auto client = alpaca::Client(env);
 
   // Submit a market order to buy 1 share of Apple at market price
-  auto buy_response =
-      client.submitOrder("AAPL", 1, alpaca::OrderSide::Buy, alpaca::OrderType::Market, alpaca::OrderTimeInForce::Day, "", "", false, "my_first_order");
+  auto buy_response = client.submitOrder("AAPL",
+                                         1,
+                                         alpaca::OrderSide::Buy,
+                                         alpaca::OrderType::Market,
+                                         alpaca::OrderTimeInForce::Day,
+                                         "",
+                                         "",
+                                         false,
+                                         "my_first_order");
   if (auto status = buy_response.first; !status.ok()) {
     std::cerr << "Error submitting purchase order: " << status.getMessage() << std::endl;
     return status.getCode();

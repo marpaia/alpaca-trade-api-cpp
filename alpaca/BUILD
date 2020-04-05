@@ -85,6 +85,19 @@ cc_test(
 )
 
 cc_test(
+    name = "calendar_test",
+    size = "small",
+    srcs = [
+        "calendar_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "client_test",
     size = "large",
     srcs = [

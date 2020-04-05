@@ -12,6 +12,7 @@ cc_library(
         "portfolio.cpp",
         "position.cpp",
         "status.cpp",
+        "streaming.cpp",
         "watchlist.cpp",
     ],
     hdrs = [
@@ -27,6 +28,7 @@ cc_library(
         "portfolio.h",
         "position.h",
         "status.h",
+        "streaming.h",
         "watchlist.h",
     ],
     defines = [

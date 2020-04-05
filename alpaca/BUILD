@@ -59,10 +59,10 @@ cc_library(
 )
 
 cc_test(
-    name = "status_test",
+    name = "account_test",
     size = "small",
     srcs = [
-        "status_test.cpp",
+        "account_test.cpp",
     ],
     deps = [
         ":alpaca",
@@ -76,6 +76,19 @@ cc_test(
     size = "large",
     srcs = [
         "client_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "status_test",
+    size = "small",
+    srcs = [
+        "status_test.cpp",
     ],
     deps = [
         ":alpaca",

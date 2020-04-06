@@ -55,7 +55,7 @@ std::string MessageGenerator::listen(const std::set<Stream>& streams) const {
   return s.GetString();
 }
 
-std::pair<Status, Reply> ReplyParser::messageType(const std::string& text) const {
+std::pair<Status, std::variant<Reply, Stream>> ReplyParser::messageType(const std::string& text) const {
   rapidjson::Document d;
   if (d.Parse(text.c_str()).HasParseError()) {
     return std::make_pair(Status(1, "Received parse error when deserializing reply JSON"), Unknown);
@@ -71,6 +71,10 @@ std::pair<Status, Reply> ReplyParser::messageType(const std::string& text) const
       return std::make_pair(Status(), Authorization);
     } else if (*stream == *kListeningStream.c_str()) {
       return std::make_pair(Status(), Listening);
+    } else if (*stream == *kTradeUpdatesStream.c_str()) {
+      return std::make_pair(Status(), TradeUpdates);
+    } else if (*stream == *kAccountUpdatesStream.c_str()) {
+      return std::make_pair(Status(), AccountUpdates);
     } else {
       std::ostringstream ss;
       ss << "Unknown stream string: " << stream;
@@ -109,10 +113,36 @@ Status StreamHandler::run(Environment& env) {
       return;
     }
 
-    if (message_type.second == alpaca::Authorization) {
-      auto listen = m.listen({alpaca::TradeUpdates, alpaca::AccountUpdates});
-      DLOG(INFO) << "Sending listen message: " << listen;
-      ws->send(listen.data(), listen.size(), uWS::OpCode::TEXT);
+    try {
+      auto stream_type = std::get<Stream>(message_type.second);
+      if (stream_type == TradeUpdates) {
+        DLOG(INFO) << "Received trade update";
+      } else if (stream_type == AccountUpdates) {
+        DLOG(INFO) << "Received account update";
+      } else {
+        LOG(ERROR) << "Unhandled stream type in router: " << stream_type;
+      }
+
+      return;
+    } catch (const std::bad_variant_access&) {
+    }
+
+    try {
+      auto reply_type = std::get<Reply>(message_type.second);
+      if (reply_type == Authorization) {
+        auto listen = m.listen({TradeUpdates, AccountUpdates});
+        DLOG(INFO) << "Sending listen message: " << listen;
+        ws->send(listen.data(), listen.size(), uWS::OpCode::TEXT);
+      } else if (reply_type == Listening) {
+        DLOG(INFO) << "Received listening confirmation";
+      } else if (reply_type == Unknown) {
+        LOG(WARNING) << "Received unknown stream reply type";
+      } else {
+        LOG(ERROR) << "Unhandled stream reply type in router: " << reply_type;
+      }
+
+      return;
+    } catch (const std::bad_variant_access&) {
     }
   });
 

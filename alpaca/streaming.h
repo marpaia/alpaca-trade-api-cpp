@@ -3,6 +3,7 @@
 #include <set>
 #include <string>
 #include <utility>
+#include <variant>
 
 #include "alpaca/config.h"
 #include "alpaca/status.h"
@@ -37,6 +38,16 @@ const std::string kAuthorizationStream = "authorization";
 const std::string kListeningStream = "listening";
 
 /**
+ * @brief The string representation of a trade updates reply
+ */
+const std::string kTradeUpdatesStream = "trade_updates";
+
+/**
+ * @brief The string representation of an account updates reply
+ */
+const std::string kAccountUpdatesStream = "account_updates";
+
+/**
  * @brief A helper class for generating messages for the stream API
  */
 class MessageGenerator {
@@ -60,7 +71,7 @@ class ReplyParser {
   /**
    * @brief A function for determining which type of message a reply is
    */
-  std::pair<Status, Reply> messageType(const std::string& text) const;
+  std::pair<Status, std::variant<Reply, Stream>> messageType(const std::string& text) const;
 };
 
 /**

@@ -53,3 +53,9 @@ cc_binary(
     srcs = ["view_open_positions.cpp"],
     deps = ["//alpaca:alpaca"],
 )
+
+cc_binary(
+    name = "run_stream_handler",
+    srcs = ["run_stream_handler.cpp"],
+    deps = ["//alpaca:alpaca"],
+)

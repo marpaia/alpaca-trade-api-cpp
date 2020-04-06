@@ -177,6 +177,19 @@ cc_test(
 )
 
 cc_test(
+    name = "streaming_test",
+    size = "small",
+    srcs = [
+        "streaming_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
     name = "watchlist_test",
     size = "small",
     srcs = [

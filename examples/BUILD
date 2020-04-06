@@ -55,7 +55,7 @@ cc_binary(
 )
 
 cc_binary(
-    name = "streaming",
-    srcs = ["streaming.cpp"],
+    name = "run_stream_handler",
+    srcs = ["run_stream_handler.cpp"],
     deps = ["//alpaca:alpaca"],
 )

@@ -51,18 +51,4 @@ const std::string kTradeUpdatsReply =
 
 class StreamingTest : public ::testing::Test {};
 
-TEST_F(StreamingTest, testReplyParser) {
-  auto rp = alpaca::ReplyParser();
-
-  auto authorization = rp.messageType(kAuthorizationReply);
-  EXPECT_OK(authorization.first);
-  EXPECT_EQ(std::get<alpaca::Reply>(authorization.second), alpaca::Authorization);
-
-  auto listening = rp.messageType(kListeningReply);
-  EXPECT_OK(listening.first);
-  EXPECT_EQ(std::get<alpaca::Reply>(listening.second), alpaca::Listening);
-
-  auto trade_updates = rp.messageType(kTradeUpdatsReply);
-  EXPECT_OK(trade_updates.first);
-  EXPECT_EQ(std::get<alpaca::Stream>(trade_updates.second), alpaca::TradeUpdates);
-}
+TEST_F(StreamingTest, testReplyParser) {}

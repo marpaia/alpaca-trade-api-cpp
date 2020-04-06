@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     return status.getCode();
   }
 
-  auto handler = alpaca::StreamHandler();
+  auto handler = alpaca::stream::Handler();
   if (auto status = handler.run(env); !status.ok()) {
     LOG(ERROR) << "Error running stream handler: " << status.getMessage();
     return status.getCode();

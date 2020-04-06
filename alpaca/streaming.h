@@ -8,12 +8,13 @@
 #include "alpaca/config.h"
 #include "alpaca/status.h"
 
-namespace alpaca {
+namespace alpaca::stream {
 
 /**
  * @brief A type representing streams that may be subscribed too
  */
-enum Stream {
+enum StreamType {
+  UnknownStreamType,
   TradeUpdates,
   AccountUpdates,
 };
@@ -21,31 +22,12 @@ enum Stream {
 /**
  * @brief A type represennting the different replies one might receive
  */
-enum Reply {
-  Unknown,
+enum ReplyType {
+  UnknownReplyType,
   Authorization,
   Listening,
+  Update,
 };
-
-/**
- * @brief The string representation of an authorization reply
- */
-const std::string kAuthorizationStream = "authorization";
-
-/**
- * @brief The string representation of a listening reply
- */
-const std::string kListeningStream = "listening";
-
-/**
- * @brief The string representation of a trade updates reply
- */
-const std::string kTradeUpdatesStream = "trade_updates";
-
-/**
- * @brief The string representation of an account updates reply
- */
-const std::string kAccountUpdatesStream = "account_updates";
 
 /**
  * @brief A helper class for generating messages for the stream API
@@ -60,24 +42,31 @@ class MessageGenerator {
   /**
    * @brief Create message for which stream to listen to for the Alpaca stream API
    */
-  std::string listen(const std::set<Stream>& streams) const;
+  std::string listen(const std::set<StreamType>& streams) const;
+};
+
+class Reply {
+ public:
+  Reply(const ReplyType reply_type = UnknownReplyType,
+        StreamType stream_type = UnknownStreamType,
+        const std::string& data = "{}")
+      : reply_type(reply_type), stream_type(stream_type), data(data) {}
+
+ public:
+  ReplyType reply_type;
+  StreamType stream_type;
+  std::string data;
 };
 
 /**
- * @brief A helper class for parsing replies from the stream API
+ * @brief Parse text from an Alpaca stream into a Reply object
  */
-class ReplyParser {
- public:
-  /**
-   * @brief A function for determining which type of message a reply is
-   */
-  std::pair<Status, std::variant<Reply, Stream>> messageType(const std::string& text) const;
-};
+std::pair<Status, Reply> parseReply(const std::string& text);
 
 /**
  * @brief A class for handling stream messages
  */
-class StreamHandler {
+class Handler {
  public:
   /**
    * @brief Run the stream handler and block.
@@ -85,4 +74,4 @@ class StreamHandler {
   Status run(Environment& env);
 };
 
-} // namespace alpaca
+} // namespace alpaca::stream

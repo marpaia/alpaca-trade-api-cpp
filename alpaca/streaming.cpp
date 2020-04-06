@@ -6,14 +6,36 @@
 #include "rapidjson/writer.h"
 #include "uWS.h"
 
-namespace alpaca {
+namespace alpaca::stream {
 
-std::string streamToString(const Stream stream) {
+/**
+ * @brief The string representation of an authorization reply
+ */
+const std::string kAuthorizationStream = "authorization";
+
+/**
+ * @brief The string representation of a listening reply
+ */
+const std::string kListeningStream = "listening";
+
+/**
+ * @brief The string representation of a trade updates reply
+ */
+const std::string kTradeUpdatesStream = "trade_updates";
+
+/**
+ * @brief The string representation of an account updates reply
+ */
+const std::string kAccountUpdatesStream = "account_updates";
+
+std::string streamToString(const StreamType stream) {
   switch (stream) {
   case TradeUpdates:
     return "trade_updates";
   case AccountUpdates:
     return "account_updates";
+  case UnknownStreamType:
+    return "unknown";
   }
 }
 
@@ -35,7 +57,7 @@ std::string MessageGenerator::authentication(const std::string& key_id, const st
   return s.GetString();
 }
 
-std::string MessageGenerator::listen(const std::set<Stream>& streams) const {
+std::string MessageGenerator::listen(const std::set<StreamType>& streams) const {
   rapidjson::StringBuffer s;
   s.Clear();
   rapidjson::Writer<rapidjson::StringBuffer> writer(s);
@@ -55,37 +77,53 @@ std::string MessageGenerator::listen(const std::set<Stream>& streams) const {
   return s.GetString();
 }
 
-std::pair<Status, std::variant<Reply, Stream>> ReplyParser::messageType(const std::string& text) const {
+std::pair<Status, Reply> parseReply(const std::string& text) {
+  Reply r;
+
   rapidjson::Document d;
   if (d.Parse(text.c_str()).HasParseError()) {
-    return std::make_pair(Status(1, "Received parse error when deserializing reply JSON"), Unknown);
+    return std::make_pair(Status(1, "Received parse error when deserializing reply JSON"), r);
   }
 
   if (!d.IsObject()) {
-    return std::make_pair(Status(1, "Deserialized valid JSON but it wasn't an object"), Unknown);
+    return std::make_pair(Status(1, "Deserialized valid JSON but it wasn't an object"), r);
   }
 
   if (d.HasMember("stream") && d["stream"].IsString()) {
     auto stream = d["stream"].GetString();
     if (*stream == *kAuthorizationStream.c_str()) {
-      return std::make_pair(Status(), Authorization);
+      r.reply_type = Authorization;
+      return std::make_pair(Status(), r);
     } else if (*stream == *kListeningStream.c_str()) {
-      return std::make_pair(Status(), Listening);
+      r.reply_type = Listening;
+      return std::make_pair(Status(), r);
     } else if (*stream == *kTradeUpdatesStream.c_str()) {
-      return std::make_pair(Status(), TradeUpdates);
+      r.reply_type = Update;
+      r.stream_type = TradeUpdates;
     } else if (*stream == *kAccountUpdatesStream.c_str()) {
-      return std::make_pair(Status(), AccountUpdates);
+      r.reply_type = Update;
+      r.stream_type = AccountUpdates;
     } else {
       std::ostringstream ss;
       ss << "Unknown stream string: " << stream;
-      return std::make_pair(Status(1, ss.str()), Unknown);
+      return std::make_pair(Status(1, ss.str()), r);
     }
+  } else {
+    return std::make_pair(Status(1, "Reply did not contain stream key"), r);
   }
 
-  return std::make_pair(Status(1, "Reply did not contain stream key"), Unknown);
+  if (d.HasMember("data") && d["data"].IsObject()) {
+    rapidjson::StringBuffer s;
+    s.Clear();
+    rapidjson::Writer<rapidjson::StringBuffer> writer(s);
+    d["data"].Accept(writer);
+    r.data = s.GetString();
+  }
+
+  return std::make_pair(Status(), r);
 }
 
-Status StreamHandler::run(Environment& env) {
+Status Handler::run(Environment& env) {
   uWS::Hub hub;
   auto group = hub.createGroup<uWS::CLIENT>();
 
@@ -95,7 +133,6 @@ Status StreamHandler::run(Environment& env) {
     }
   }
   auto m = MessageGenerator();
-  auto r = ReplyParser();
   auto authentication = m.authentication(env.getAPIKeyID(), env.getAPISecretKey());
 
   group->onConnection([authentication](uWS::WebSocket<uWS::CLIENT>* ws, uWS::HttpRequest req) {
@@ -103,46 +140,42 @@ Status StreamHandler::run(Environment& env) {
     ws->send(authentication.data(), authentication.size(), uWS::OpCode::TEXT);
   });
 
-  group->onMessage([m, r](uWS::WebSocket<uWS::CLIENT>* ws, char* message, size_t length, uWS::OpCode opCode) {
+  group->onMessage([m](uWS::WebSocket<uWS::CLIENT>* ws, char* message, size_t length, uWS::OpCode opCode) {
     auto text = std::string(message, length);
     DLOG(INFO) << "Got reply: " << text;
 
-    auto message_type = r.messageType(text);
-    if (auto status = message_type.first; !status.ok()) {
+    auto parsed_reply = parseReply(text);
+    if (auto status = parsed_reply.first; !status.ok()) {
       LOG(ERROR) << "Error parsing stream reply: " << status.getMessage();
       return;
     }
+    auto reply = parsed_reply.second;
 
-    try {
-      auto stream_type = std::get<Stream>(message_type.second);
-      if (stream_type == TradeUpdates) {
-        DLOG(INFO) << "Received trade update";
-      } else if (stream_type == AccountUpdates) {
-        DLOG(INFO) << "Received account update";
-      } else {
-        LOG(ERROR) << "Unhandled stream type in router: " << stream_type;
-      }
-
+    if (reply.reply_type == ReplyType::Authorization) {
+      auto listen = m.listen({StreamType::TradeUpdates, StreamType::AccountUpdates});
+      DLOG(INFO) << "Sending listen message: " << listen;
+      ws->send(listen.data(), listen.size(), uWS::OpCode::TEXT);
       return;
-    } catch (const std::bad_variant_access&) {
+    } else if (reply.reply_type == ReplyType::Listening) {
+      DLOG(INFO) << "Received listening confirmation";
+      return;
+    } else if (reply.reply_type == ReplyType::UnknownReplyType) {
+      LOG(WARNING) << "Received unknown stream reply type";
+      return;
+    } else if (reply.reply_type == ReplyType::Update) {
+      DLOG(INFO) << "Received update message: " << reply.data;
+    } else {
+      LOG(ERROR) << "Unhandled stream reply type in router: " << reply.reply_type;
     }
 
-    try {
-      auto reply_type = std::get<Reply>(message_type.second);
-      if (reply_type == Authorization) {
-        auto listen = m.listen({TradeUpdates, AccountUpdates});
-        DLOG(INFO) << "Sending listen message: " << listen;
-        ws->send(listen.data(), listen.size(), uWS::OpCode::TEXT);
-      } else if (reply_type == Listening) {
-        DLOG(INFO) << "Received listening confirmation";
-      } else if (reply_type == Unknown) {
-        LOG(WARNING) << "Received unknown stream reply type";
-      } else {
-        LOG(ERROR) << "Unhandled stream reply type in router: " << reply_type;
-      }
-
-      return;
-    } catch (const std::bad_variant_access&) {
+    if (reply.stream_type == StreamType::UnknownStreamType) {
+      LOG(WARNING) << "Received unknown stream type";
+    } else if (reply.stream_type == StreamType::TradeUpdates) {
+      DLOG(INFO) << "Received trade update";
+    } else if (reply.stream_type == StreamType::AccountUpdates) {
+      DLOG(INFO) << "Received account update";
+    } else {
+      LOG(ERROR) << "Unhandled stream type in router: " << reply.stream_type;
     }
   });
 
@@ -160,4 +193,4 @@ Status StreamHandler::run(Environment& env) {
   return Status(1, "unreachable");
 }
 
-} // namespace alpaca
+} // namespace alpaca::stream

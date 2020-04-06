@@ -1,7 +1,7 @@
 build --cxxopt='-std=c++17'
+build --action_env=APCA_API_KEY_ID
+build --action_env=APCA_API_SECRET_KEY
+build --action_env=APCA_API_BASE_URL
+build --action_env=APCA_API_DATA_URL
 test --test_output=errors
 test --cache_test_results=no
-test --action_env=APCA_API_KEY_ID
-test --action_env=APCA_API_SECRET_KEY
-test --action_env=APCA_API_BASE_URL
-test --action_env=APCA_API_DATA_URL

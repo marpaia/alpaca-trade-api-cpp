@@ -185,7 +185,7 @@ cc_test(
     deps = [
         ":alpaca",
         ":test_helpers",
-        "@com_google_googletest//:gtest_main",
+        "@com_github_google_googletest//:gtest_main",
     ],
 )
 

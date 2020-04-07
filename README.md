@@ -17,6 +17,7 @@ This document has the following sections:
   - [Account API](#account-api)
   - [Account Configuration API](#account-configuration-api)
   - [Account Activities API](#account-activities-api)
+  - [Streaming API](#streaming-api)
 - [Examples](#examples)
   - [Account Examples](#account-examples)
   - [Assets Examples](#assets-examples)
@@ -488,6 +489,63 @@ for (const auto& activity : activities) {
 ```
 
 For more information on the Account Activities API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/account-activities/.
+
+### Streaming API
+
+To instantiate an instance of the stream handler, the main classes you'll need are:
+
+- [`alpaca::StreamHandler`](./alpaca/streaming.h): The main stream handler class.
+- [`alpaca::Environment`](./alpaca/config.h): A helper class for parsing the required environment variables from the local environment.
+
+Consider the following minimal example usage of these classes:
+
+```cpp
+#include <iostream>
+
+#include "alpaca/config.h"
+#include "alpaca/streaming.h"
+#include "rapidjson/document.h"
+#include "rapidjson/prettywriter.h"
+#include "rapidjson/stringbuffer.h"
+
+int main(int argc, char* argv[]) {
+  // Parse the configuration from the environment
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+
+  // Log trade updates
+  std::function<void(alpaca::stream::DataType data)> on_trade_update = [=](alpaca::stream::DataType data) {
+    rapidjson::Document d;
+    d.Parse(data.c_str());
+    rapidjson::StringBuffer s;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+    d.Accept(writer);
+    std::cout << "Got trade update: " << s.GetString() << std::endl;
+  };
+
+  // Log account updates
+  std::function<void(alpaca::stream::DataType data)> on_account_update = [=](alpaca::stream::DataType data) {
+    rapidjson::Document d;
+    d.Parse(data.c_str());
+    rapidjson::StringBuffer s;
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(s);
+    d.Accept(writer);
+    std::cout << "Got account update: " << s.GetString() << std::endl;
+  };
+
+  // Create and run the stream handler
+  auto handler = alpaca::stream::Handler(on_trade_update, on_account_update);
+  if (auto status = handler.run(env); !status.ok()) {
+    std::cerr << "Error running stream handler: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+
+  return 0;
+}
+```
 
 ## Examples
 

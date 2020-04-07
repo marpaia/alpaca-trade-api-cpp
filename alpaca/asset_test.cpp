@@ -19,7 +19,7 @@ const std::string kAssetJSON =
     "\"easy_to_borrow\": true"
     "}";
 
-TEST_F(AssetTest, testOrderFromJSON) {
+TEST_F(AssetTest, testAssetFromJSON) {
   alpaca::Asset asset;
   EXPECT_OK(asset.fromJSON(kAssetJSON));
   EXPECT_EQ(asset.symbol, "AAPL");

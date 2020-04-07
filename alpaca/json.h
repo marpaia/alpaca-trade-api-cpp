@@ -10,6 +10,11 @@
     var = d[name].GetInt();                                                                                            \
   }
 
+#define PARSE_UINT(var, name)                                                                                          \
+  if (d.HasMember(name) && d[name].IsUint()) {                                                                         \
+    var = d[name].GetUint();                                                                                           \
+  }
+
 #define PARSE_BOOL(var, name)                                                                                          \
   if (d.HasMember(name) && d[name].IsBool()) {                                                                         \
     var = d[name].GetBool();                                                                                           \

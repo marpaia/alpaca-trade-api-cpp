@@ -6,6 +6,7 @@ cc_library(
         "account.h",
         "asset.h",
         "alpaca.h",
+        "bars.h",
         "calendar.h",
         "client.h",
         "clock.h",
@@ -22,6 +23,7 @@ cc_library(
     srcs = [
         "account.cpp",
         "asset.cpp",
+        "bars.cpp",
         "calendar.cpp",
         "client.cpp",
         "clock.cpp",
@@ -78,6 +80,19 @@ cc_test(
     size = "small",
     srcs = [
         "asset_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_github_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "bars_test",
+    size = "small",
+    srcs = [
+        "bars_test.cpp",
     ],
     deps = [
         ":alpaca",

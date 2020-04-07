@@ -475,17 +475,17 @@ for (const auto& activity : activities) {
   try {
     auto trade_activity = std::get<alpaca::TradeActivity>(activity);
     std::cout << "Trade Activity: " << std::endl;
-    std::cout << "  Symbol = " << trade_activity.symbol << std::endl;
-    std::cout << "  Side = " << trade_activity.side << std::endl;
-    std::cout << "  Price = " << trade_activity.price << std::endl;
-    std::cout << "  Quantity = " << trade_activity.qty << std::endl;
+    std::cout << "  - Symbol = " << trade_activity.symbol << std::endl;
+    std::cout << "  - Side = " << trade_activity.side << std::endl;
+    std::cout << "  - Price = " << trade_activity.price << std::endl;
+    std::cout << "  - Quantity = " << trade_activity.qty << std::endl;
   } catch (const std::bad_variant_access&) {}
   try {
     auto non_trade_activity = std::get<alpaca::NonTradeActivity>(activity);
     std::cout << "Non-Trade Activity: " << std::endl;
-    std::cout << "  Activity Type = " << non_trade_activity.activity_type << std::endl;
-    std::cout << "  Symbol = " << non_trade_activity.symbol << std::endl;
-    std::cout << "  Quantity = " << non_trade_activity.qty << std::endl;
+    std::cout << "  - Activity Type = " << non_trade_activity.activity_type << std::endl;
+    std::cout << "  - Symbol = " << non_trade_activity.symbol << std::endl;
+    std::cout << "  - Quantity = " << non_trade_activity.qty << std::endl;
   } catch (const std::bad_variant_access&) {}
 }
 ```
@@ -549,7 +549,7 @@ int main(int argc, char* argv[]) {
 }
 ```
 
-For more information the Streaming API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/streaming/.
+For more information on the Streaming API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/streaming/.
 
 ### Market Data API
 
@@ -577,7 +577,7 @@ auto percent_change = (end_price - start_price) / start_price * 100;
 std::cout << "AAPL moved " << percent_change << "% over the time range." << std::endl;
 ```
 
-For more information the Market Data API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/market-data/.
+For more information on the Market Data API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/market-data/.
 
 ## Examples
 
@@ -657,7 +657,7 @@ int main(int argc, char* argv[]) {
 
 #### Get a List of Assets
 
-If you send a GET request to our `/v2/assets` endpoint, you’ll receive a list of US equities.
+If you send a GET request to the `/v2/assets` endpoint, you’ll receive a list of US equities.
 
 ```cpp
 #include <iostream>

@@ -1,0 +1,29 @@
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  // Parse configuration from the environment
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+
+  // Create an API client object
+  auto client = alpaca::Client(env);
+
+  auto bars_response = client.getBars({"AAPL"}, "2020-04-01T09:30:00-04:00", "2020-04-03T09:30:00-04:00");
+  if (auto status = bars_response.first; !status.ok()) {
+    std::cerr << "Error getting bars information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto bars = bars_response.second.bars["AAPL"];
+
+  auto start_price = bars.front().open_price;
+  auto end_price = bars.back().close_price;
+  auto percent_change = (end_price - start_price) / start_price * 100;
+  std::cout << "AAPL moved " << percent_change << "% over the time range." << std::endl;
+
+  return 0;
+}

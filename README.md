@@ -18,12 +18,14 @@ This document has the following sections:
   - [Account Configuration API](#account-configuration-api)
   - [Account Activities API](#account-activities-api)
   - [Streaming API](#streaming-api)
+  - [Market Data API](#market-data-api)
 - [Examples](#examples)
   - [Account Examples](#account-examples)
   - [Assets Examples](#assets-examples)
   - [Check Market Hours](#check-market-hours)
   - [Order Examples](#order-examples)
   - [Portfolio Examples](#porfolio-examples)
+  - [Market Examples](#market-data-examples)
 - [Installation](#installation)
   - [Bazel Projects](#bazel-projects)
 
@@ -547,6 +549,36 @@ int main(int argc, char* argv[]) {
 }
 ```
 
+For more information the Streaming API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/streaming/.
+
+### Market Data API
+
+Alpaca Data API provides the market data available to the client user. Specifically, the bars API provides time-aggregated price and volume data.
+
+Consider the following example usage of the Bars API.
+
+```cpp
+auto client = alpaca::Client(env);
+
+auto bars_response = client.getBars(
+  {"AAPL"},
+  "2020-04-01T09:30:00-04:00",
+  "2020-04-03T09:30:00-04:00"
+);
+if (auto status = bars_response.first; !status.ok()) {
+  std::cerr << "Error getting bars information: " << status.getMessage() << std::endl;
+  return status.getCode();
+}
+auto bars = bars_response.second.bars["AAPL"];
+
+auto start_price = bars.front().open_price;
+auto end_price = bars.back().close_price;
+auto percent_change = (end_price - start_price) / start_price * 100;
+std::cout << "AAPL moved " << percent_change << "% over the time range." << std::endl;
+```
+
+For more information the Market Data API, see the official API documentation: https://alpaca.markets/docs/api-documentation/api-v2/market-data/.
+
 ## Examples
 
 ### Account Examples
@@ -837,6 +869,7 @@ int main(int argc, char* argv[]) {
 ```
 
 #### Get a List of Existing Orders
+
 If you’d like to see a list of your existing orders, you can send a get request to the `/v2/orders` endpoint.
 
 ```cpp
@@ -911,6 +944,42 @@ int main(int argc, char* argv[]) {
   for (const auto& position : positions) {
     std::cout << position.qty << " shares in " << position.symbol << std::endl;
   }
+
+  return 0;
+}
+```
+
+### Market Data Examples
+
+By making a GET request to the `/v1/bars` endpoint, you can see what a stock price was at a particular time.
+
+```cpp
+#include <iostream>
+
+#include "alpaca/alpaca.h"
+
+int main(int argc, char* argv[]) {
+  // Parse configuration from the environment
+  auto env = alpaca::Environment();
+  if (auto status = env.parse(); !status.ok()) {
+    std::cerr << "Error parsing config from environment: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+
+  // Create an API client object
+  auto client = alpaca::Client(env);
+
+  auto bars_response = client.getBars({"AAPL"}, "2020-04-01T09:30:00-04:00", "2020-04-03T09:30:00-04:00");
+  if (auto status = bars_response.first; !status.ok()) {
+    std::cerr << "Error getting bars information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto bars = bars_response.second.bars["AAPL"];
+
+  auto start_price = bars.front().open_price;
+  auto end_price = bars.back().close_price;
+  auto percent_change = (end_price - start_price) / start_price * 100;
+  std::cout << "AAPL moved " << percent_change << "% over the time range." << std::endl;
 
   return 0;
 }

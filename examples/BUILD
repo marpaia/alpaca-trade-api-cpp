@@ -59,3 +59,9 @@ cc_binary(
     srcs = ["run_stream_handler.cpp"],
     deps = ["//alpaca:alpaca"],
 )
+
+cc_binary(
+    name = "get_historical_data",
+    srcs = ["get_historical_data.cpp"],
+    deps = ["//alpaca:alpaca"],
+)

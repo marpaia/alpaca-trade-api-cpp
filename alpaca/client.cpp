@@ -1052,4 +1052,60 @@ std::pair<Status, PortfolioHistory> Client::getPortfolioHistory(const std::strin
   return std::make_pair(portfolio_history.fromJSON(resp->body), portfolio_history);
 }
 
+std::pair<Status, Bars> Client::getBars(const std::vector<std::string>& symbols,
+                                        const std::string& start,
+                                        const std::string& end,
+                                        const std::string& after,
+                                        const std::string& until,
+                                        const std::string& timeframe,
+                                        const uint limit) {
+  Bars bars;
+
+  std::string symbols_string = "";
+  for (auto i = 0; i < symbols.size(); ++i) {
+    symbols_string += symbols[i];
+    symbols_string += ",";
+  }
+  symbols_string.pop_back();
+
+  httplib::Params params{
+      {"symbols", symbols_string},
+      {"limit", std::to_string(limit)},
+      {"timeframe", timeframe},
+  };
+  if (start != "") {
+    params.insert({"start", start});
+  }
+  if (end != "") {
+    params.insert({"end", end});
+  }
+  if (after != "") {
+    params.insert({"after", after});
+  }
+  if (until != "") {
+    params.insert({"until", until});
+  }
+  auto query_string = httplib::detail::params_to_query_str(params);
+
+  auto url = "/v1/bars/" + timeframe + "?" + query_string;
+
+  httplib::SSLClient client(environment_.getAPIDataURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), bars);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), bars);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+  return std::make_pair(bars.fromJSON(resp->body), bars);
+}
+
 } // namespace alpaca

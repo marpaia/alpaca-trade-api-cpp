@@ -7,6 +7,7 @@
 
 #include "alpaca/account.h"
 #include "alpaca/asset.h"
+#include "alpaca/bars.h"
 #include "alpaca/calendar.h"
 #include "alpaca/clock.h"
 #include "alpaca/config.h"
@@ -630,6 +631,34 @@ class Client {
                                                           const std::string& timeframe = "",
                                                           const std::string& date_end = "",
                                                           const bool extended_hours = false) const;
+
+  /**
+   * @brief Fetch historical performance data.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getBars({"AAPL", "GOOG"}, "2020-04-01T09:30:00-04:00", "2020-04-07T09:30:00-04:00");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting bars: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto bars = resp.second;
+   *   for (auto iter = bars.bars.begin(); iter != bars.bars.end(); ++iter) {
+   *     LOG(INFO) << "Got " << iter->second.size() << " bars for " << iter->first << ".";
+   *   }
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::Bars object.
+   */
+  std::pair<Status, Bars> getBars(const std::vector<std::string>& symbols,
+                                  const std::string& start,
+                                  const std::string& end,
+                                  const std::string& after = "",
+                                  const std::string& until = "",
+                                  const std::string& timeframe = "1D",
+                                  const uint limit = 100);
 
  private:
   Environment environment_;

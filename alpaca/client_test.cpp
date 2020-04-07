@@ -247,3 +247,14 @@ TEST_F(ClientTest, testPortfolioHistory) {
   EXPECT_NE(portfolio_history.timeframe, "");
   EXPECT_GT(portfolio_history.timestamp.size(), 0);
 }
+
+TEST_F(ClientTest, testBars) {
+  auto client = alpaca::testClient();
+  auto bars_resp = client.getBars({"AAPL", "GOOG"}, "2020-04-01T09:30:00-04:00", "2020-04-03T09:30:00-04:00");
+  EXPECT_OK(bars_resp.first);
+  auto bars = bars_resp.second;
+  for (auto it = bars.bars.begin(); it != bars.bars.end(); ++it) {
+    EXPECT_NE(it->first, "");
+    EXPECT_EQ(it->second.size(), 3);
+  }
+}

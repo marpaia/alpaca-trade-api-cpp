@@ -14,7 +14,15 @@ int main(int argc, char* argv[]) {
     return status.getCode();
   }
 
-  auto handler = alpaca::stream::Handler();
+  std::function<void(alpaca::stream::DataType data)> on_trade_update = [=](alpaca::stream::DataType data) {
+    LOG(INFO) << "Got trade update: " << data;
+  };
+
+  std::function<void(alpaca::stream::DataType data)> on_account_update = [=](alpaca::stream::DataType data) {
+    LOG(INFO) << "Got account update: " << data;
+  };
+
+  auto handler = alpaca::stream::Handler(on_trade_update, on_account_update);
   if (auto status = handler.run(env); !status.ok()) {
     LOG(ERROR) << "Error running stream handler: " << status.getMessage();
     return status.getCode();

@@ -132,17 +132,17 @@ Status Handler::run(Environment& env) {
       return status;
     }
   }
-  auto m = MessageGenerator();
-  auto authentication = m.authentication(env.getAPIKeyID(), env.getAPISecretKey());
+  auto message_generator_ = MessageGenerator();
+  auto authentication = message_generator_.authentication(env.getAPIKeyID(), env.getAPISecretKey());
+  auto listen = message_generator_.listen({StreamType::TradeUpdates, StreamType::AccountUpdates});
 
   group->onConnection([authentication](uWS::WebSocket<uWS::CLIENT>* ws, uWS::HttpRequest req) {
     DLOG(INFO) << "Received connection event and sending authenticate message";
     ws->send(authentication.data(), authentication.size(), uWS::OpCode::TEXT);
   });
 
-  group->onMessage([m](uWS::WebSocket<uWS::CLIENT>* ws, char* message, size_t length, uWS::OpCode opCode) {
+  group->onMessage([this, listen](uWS::WebSocket<uWS::CLIENT>* ws, char* message, size_t length, uWS::OpCode opCode) {
     auto text = std::string(message, length);
-    DLOG(INFO) << "Got reply: " << text;
 
     auto parsed_reply = parseReply(text);
     if (auto status = parsed_reply.first; !status.ok()) {
@@ -152,7 +152,6 @@ Status Handler::run(Environment& env) {
     auto reply = parsed_reply.second;
 
     if (reply.reply_type == ReplyType::Authorization) {
-      auto listen = m.listen({StreamType::TradeUpdates, StreamType::AccountUpdates});
       DLOG(INFO) << "Sending listen message: " << listen;
       ws->send(listen.data(), listen.size(), uWS::OpCode::TEXT);
       return;
@@ -163,7 +162,7 @@ Status Handler::run(Environment& env) {
       LOG(WARNING) << "Received unknown stream reply type";
       return;
     } else if (reply.reply_type == ReplyType::Update) {
-      DLOG(INFO) << "Received update message: " << reply.data;
+      DLOG(INFO) << "Received update message";
     } else {
       LOG(ERROR) << "Unhandled stream reply type in router: " << reply.reply_type;
     }
@@ -172,8 +171,10 @@ Status Handler::run(Environment& env) {
       LOG(WARNING) << "Received unknown stream type";
     } else if (reply.stream_type == StreamType::TradeUpdates) {
       DLOG(INFO) << "Received trade update";
+      on_trade_update_(reply.data);
     } else if (reply.stream_type == StreamType::AccountUpdates) {
       DLOG(INFO) << "Received account update";
+      on_account_update_(reply.data);
     } else {
       LOG(ERROR) << "Unhandled stream type in router: " << reply.stream_type;
     }

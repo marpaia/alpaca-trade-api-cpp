@@ -1,0 +1,16 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: l.gcr.io/google/bazel:0.21.0
+    working_directory: /alpaca-trade-api-cpp
+    steps: &steps
+      - checkout
+      - run: bazel build //alpaca/...
+      - run: bazel build //examples/...
+      - run: bazel test //alpaca/...
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build

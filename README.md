@@ -1,4 +1,5 @@
-# Alpaca Trade API C++ Client
+# Alpaca Trade API C++ Client [![CircleCI](https://circleci.com/gh/marpaia/alpaca-trade-api-cpp.svg?style=svg)](https://circleci.com/gh/marpaia/alpaca-trade-api-cpp)
+
 
 This document has the following sections:
 

@@ -1,5 +1,5 @@
-load("@//bazel:deps.bzl", "ALPACA_DEFINES")
-load("@//bazel:deps.bzl", "ALPACA_DEPS")
+load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEFINES")
+load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEPS")
 
 package(default_visibility = ["//visibility:private"])
 

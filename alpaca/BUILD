@@ -1,3 +1,6 @@
+load("@//bazel:vars.bzl", "ALPACA_DEFINES")
+load("@//bazel:vars.bzl", "ALPACA_DEPS")
+
 package(default_visibility = ["//visibility:private"])
 
 cc_library(
@@ -36,16 +39,8 @@ cc_library(
         "watchlist.cpp",
     ],
     visibility = ["//visibility:public"],
-    defines = [
-        "CPPHTTPLIB_OPENSSL_SUPPORT",
-    ],
-    deps = [
-        "@com_github_google_boringssl//:ssl",
-        "@com_github_google_glog//:glog",
-        "@com_github_tencent_rapidjson//:rapidjson",
-        "@com_github_yhirose_cpp-httplib//:httplib",
-        "@com_github_unetworking_uwebsockets//:uwebsockets",
-    ],
+    defines = ALPACA_DEFINES,
+    deps = ALPACA_DEPS,
 )
 
 cc_library(

@@ -1,5 +1,5 @@
-load("@//bazel:vars.bzl", "ALPACA_DEFINES")
-load("@//bazel:vars.bzl", "ALPACA_DEPS")
+load("@//bazel:deps.bzl", "ALPACA_DEFINES")
+load("@//bazel:deps.bzl", "ALPACA_DEPS")
 
 package(default_visibility = ["//visibility:private"])
 

@@ -15,6 +15,11 @@ ALPACA_DEFINES = [
 def alpaca_deps():
     """Loads dependencies need to compile and test with the alpaca library."""
 
+    native.bind(
+        name = "alpaca_trade_api_cpp",
+        actual = "@com_github_marpaia_alpaca-trade-api-cpp",
+    )
+
     # googletest is a testing framework developed by Google.
     if "com_github_google_gooogletest" not in native.existing_rules():
         http_archive(

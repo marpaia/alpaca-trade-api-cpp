@@ -1001,8 +1001,6 @@ http_archive(
     strip_prefix = "alpaca-trade-api-cpp-master",
     urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/master.tar.gz"],
 )
-load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "alpaca_deps")
-alpaca_deps()
 ```
 
 For stability reasons, it is worth considering using a pinned version of this library. For example, if you'd like to use version `1.0.0`, you may add the following `http_archive` stanza to your `WORKSPACE` file:
@@ -1015,11 +1013,16 @@ http_archive(
     strip_prefix = "alpaca-trade-api-cpp-1.0.0",
     urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/v1.0.0.tar.gz"],
 )
+```
+
+Once you've added the appropriate `http_archive` stanza to your `WORKSPACE` file, add the following to initialize all transient dependencies:
+
+```py
 load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "alpaca_deps")
 alpaca_deps()
 ```
 
-Once you've added the appropriate `http_archive` stanza to your `WORKSPACE` file, you must add the dependency to the desired target in a `BUILD` file. For example, consider the following `cpp_binary` stanza:
+To compile the program, you must add the dependencies to the desired target in a `BUILD` file. For example, consider the following `cpp_binary` stanza:
 
 ```py
 load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEPS")
@@ -1028,8 +1031,6 @@ cc_binary(
   name = "trading_algo",
   visibility = ["//visibility:public"],
   srcs = ["main.cpp"],
-  deps = [
-    "@com_github_marpaia_alpaca_trade_api_cpp//alpaca:alpaca",
-  ] + ALPACA_DEPS,
+  deps = ALPACA_DEPS,
 )
 ```

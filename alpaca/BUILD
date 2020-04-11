@@ -1,5 +1,5 @@
 load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEFINES")
-load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEPS")
+load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_INTERNAL_DEPS")
 
 package(default_visibility = ["//visibility:private"])
 
@@ -40,7 +40,7 @@ cc_library(
     ],
     visibility = ["//visibility:public"],
     defines = ALPACA_DEFINES,
-    deps = ALPACA_DEPS,
+    deps = ALPACA_INTERNAL_DEPS,
 )
 
 cc_library(

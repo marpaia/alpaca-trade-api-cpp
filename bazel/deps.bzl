@@ -1,6 +1,10 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
 ALPACA_DEPS = [
+    "@com_github_marpaia_alpaca_trade_api_cpp//alpaca:alpaca",
+] + ALPACA_INTERNAL_DEPS
+
+ALPACA_INTERNAL_DEPS = [
     "@com_github_google_boringssl//:ssl",
     "@com_github_google_glog//:glog",
     "@com_github_tencent_rapidjson//:rapidjson",

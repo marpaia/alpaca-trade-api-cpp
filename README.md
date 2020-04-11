@@ -1054,8 +1054,6 @@ alpaca_deps()
 To compile a program, you must add the dependency to the desired target to `deps` in a `BUILD` file. For example, consider the following `cpp_binary` stanza:
 
 ```py
-load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEPS")
-
 cc_binary(
   name = "trading_algo",
   srcs = ["main.cpp"],

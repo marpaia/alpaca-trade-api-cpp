@@ -1044,7 +1044,6 @@ http_archive(
     name = "com_github_marpaia_alpaca_trade_api_cpp",
     strip_prefix = "alpaca-trade-api-cpp-master",
     urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/master.tar.gz"],
-    sha256 = "",
 )
 load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "alpaca_deps")
 alpaca_deps()

@@ -1022,7 +1022,7 @@ load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "alpaca_deps")
 alpaca_deps()
 ```
 
-To compile the program, you must add the dependencies to the desired target in a `BUILD` file. For example, consider the following `cpp_binary` stanza:
+To compile the program, you must add the dependency to the desired target in a `BUILD` file. For example, consider the following `cpp_binary` stanza:
 
 ```py
 load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEPS")
@@ -1031,6 +1031,8 @@ cc_binary(
   name = "trading_algo",
   visibility = ["//visibility:public"],
   srcs = ["main.cpp"],
-  deps = ALPACA_DEPS,
+  deps = [
+    "@com_github_marpaia_alpaca_trade_api//alpaca:alpaca",
+  ],
 )
 ```

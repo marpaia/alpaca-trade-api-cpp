@@ -1,6 +1,3 @@
-load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEFINES")
-load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_INTERNAL_DEPS")
-
 package(default_visibility = ["//visibility:private"])
 
 cc_library(
@@ -39,8 +36,16 @@ cc_library(
         "watchlist.cpp",
     ],
     visibility = ["//visibility:public"],
-    defines = ALPACA_DEFINES,
-    deps = ALPACA_INTERNAL_DEPS,
+    defines = [
+        "CPPHTTPLIB_OPENSSL_SUPPORT",
+    ],
+    deps = [
+        "@com_github_google_boringssl//:ssl",
+        "@com_github_google_glog//:glog",
+        "@com_github_tencent_rapidjson//:rapidjson",
+        "@com_github_yhirose_cpp_httplib//:httplib",
+        "@com_github_unetworking_uwebsockets//:uwebsockets",
+    ],
 )
 
 cc_library(

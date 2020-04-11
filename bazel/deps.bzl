@@ -33,7 +33,7 @@ def alpaca_deps():
             name = "com_github_tencent_rapidjson",
             strip_prefix = "rapidjson-1.1.0",
             urls = ["https://github.com/Tencent/rapidjson/archive/v1.1.0.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//third_party/rapidjson:BUILD",
+            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/rapidjson:BUILD",
         )
 
     # cpp-httplib is a C++ header-only HTTP/HTTPS server and client library.
@@ -42,7 +42,7 @@ def alpaca_deps():
             name = "com_github_yhirose_cpp_httplib",
             strip_prefix = "cpp-httplib-0.5.7",
             urls = ["https://github.com/yhirose/cpp-httplib/archive/v0.5.7.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//third_party/cpphttplib:BUILD"
+            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/cpphttplib:BUILD"
         )
 
     # BoringSSL is a fork of OpenSSL that is designed to meet Google's needs.
@@ -59,7 +59,7 @@ def alpaca_deps():
             name = "com_github_madler_zlib",
             strip_prefix = "zlib-1.2.11",
             urls = ["https://github.com/madler/zlib/archive/v1.2.11.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//third_party/zlib:BUILD",
+            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/zlib:BUILD",
         )
 
     # libuv is a multi-platform support library with a focus on asynchronous I/O.
@@ -68,7 +68,7 @@ def alpaca_deps():
             name = "com_github_libuv_libuv",
             strip_prefix = "libuv-1.23.2",
             urls = ["https://github.com/libuv/libuv/archive/v1.23.2.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//third_party/libuv:BUILD",
+            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/libuv:BUILD",
         )
 
     # uWebsockets is a simple, secure & standards compliant web I/O library.
@@ -77,5 +77,5 @@ def alpaca_deps():
             name = "com_github_unetworking_uwebsockets",
             strip_prefix = "uWebSockets-0.14.8",
             urls = ["https://github.com/uNetworking/uWebSockets/archive/v0.14.8.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//third_party/uwebsockets:BUILD",
+            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/uwebsockets:BUILD",
         )

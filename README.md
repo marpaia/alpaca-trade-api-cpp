@@ -1058,7 +1058,6 @@ load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "ALPACA_DEPS")
 
 cc_binary(
   name = "trading_algo",
-  visibility = ["//visibility:public"],
   srcs = ["main.cpp"],
   deps = [
     "@com_github_marpaia_alpaca_trade_api//alpaca:alpaca",

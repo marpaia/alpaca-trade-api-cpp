@@ -995,19 +995,9 @@ To make it as easy as possible to get started, we also publish the [Alpaca C++ S
 
 #### `WORKSPACE`
 
-To depend on the `master` branch of this repository, you could add the following to your `WORKSPACE` file:
 
-```py
-load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 
-http_archive(
-    name = "com_github_marpaia_alpaca_trade_api_cpp",
-    strip_prefix = "alpaca-trade-api-cpp-master",
-    urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/master.tar.gz"],
-)
-```
-
-For stability reasons, it is worth considering using a pinned version of this library. For example, if you'd like to use version `0.0.2`, you may add the following `http_archive` stanza to your `WORKSPACE` file:
+For stability and security reasons, it is worth using a pinned version of this library. For example, if you'd like to use version `0.0.2`, you may add the following `http_archive` stanza to your `WORKSPACE` file:
 
 ```py
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
@@ -1016,6 +1006,19 @@ http_archive(
     name = "com_github_marpaia_alpaca_trade_api_cpp",
     strip_prefix = "alpaca-trade-api-cpp-0.0.2",
     urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/v0.0.2.tar.gz"],
+    sha256 = "65aa17318d356ff7cfc55e6510cebcf1ab94c3d7a3eb0f6175a197b503cb7dfe",
+)
+```
+
+To depend on the `master` branch of this repository, you could alternativly add the following to your `WORKSPACE` file:
+
+```py
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+http_archive(
+    name = "com_github_marpaia_alpaca_trade_api_cpp",
+    strip_prefix = "alpaca-trade-api-cpp-master",
+    urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/master.tar.gz"],
 )
 ```
 
@@ -1042,8 +1045,9 @@ load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 # alpaca-trade-api-cpp is a C++ client library for the Alpaca Trading API.
 http_archive(
     name = "com_github_marpaia_alpaca_trade_api_cpp",
-    strip_prefix = "alpaca-trade-api-cpp-master",
-    urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/master.tar.gz"],
+    strip_prefix = "alpaca-trade-api-cpp-0.0.2",
+    urls = ["https://github.com/marpaia/alpaca-trade-api-cpp/archive/v0.0.2.tar.gz"],
+    sha256 = "65aa17318d356ff7cfc55e6510cebcf1ab94c3d7a3eb0f6175a197b503cb7dfe",
 )
 load("@com_github_marpaia_alpaca_trade_api_cpp//bazel:deps.bzl", "alpaca_deps")
 alpaca_deps()
@@ -1058,7 +1062,7 @@ cc_binary(
   name = "trading_algo",
   srcs = ["main.cpp"],
   deps = [
-    "@com_github_marpaia_alpaca_trade_api//alpaca:alpaca",
+    "@com_github_marpaia_alpaca_trade_api_cpp//alpaca:alpaca",
   ],
 )
 ```

@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 #include "alpaca/status.h"
 #include "rapidjson/document.h"

@@ -951,7 +951,7 @@ int main(int argc, char* argv[]) {
 
 ### Market Data Examples
 
-By making a GET request to the `/v1/bars` endpoint, you can see what a stock price was at a particular time.
+By using the data API, you can see what a stock price was at a particular time and information about the last trade.
 
 ```cpp
 #include <iostream>
@@ -980,6 +980,14 @@ int main(int argc, char* argv[]) {
   auto end_price = bars.back().close_price;
   auto percent_change = (end_price - start_price) / start_price * 100;
   std::cout << "AAPL moved " << percent_change << "% over the time range." << std::endl;
+
+  auto last_trade_response = client.getLastTrade("AAPL");
+  if (auto status = last_trade_response.first; !status.ok()) {
+    std::cerr << "Error getting last trade information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto last_trade = last_trade_response.second;
+  std::cout << "The last traded price of AAPL was: $" << last_trade.trade.price << std::endl;
 
   return 0;
 }

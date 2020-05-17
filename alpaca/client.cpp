@@ -1058,7 +1058,7 @@ std::pair<Status, Bars> Client::getBars(const std::vector<std::string>& symbols,
                                         const std::string& after,
                                         const std::string& until,
                                         const std::string& timeframe,
-                                        const uint limit) {
+                                        const uint limit) const {
   Bars bars;
 
   std::string symbols_string = "";
@@ -1106,6 +1106,30 @@ std::pair<Status, Bars> Client::getBars(const std::vector<std::string>& symbols,
 
   DLOG(INFO) << "Response from " << url << ": " << resp->body;
   return std::make_pair(bars.fromJSON(resp->body), bars);
+}
+
+std::pair<Status, LastTrade> Client::getLastTrade(const std::string& symbol) const {
+  LastTrade last_trade;
+
+  auto url = "/v1/last/stocks/" + symbol;
+
+  httplib::SSLClient client(environment_.getAPIDataURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), last_trade);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), last_trade);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+  return std::make_pair(last_trade.fromJSON(resp->body), last_trade);
 }
 
 } // namespace alpaca

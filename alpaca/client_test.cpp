@@ -258,3 +258,11 @@ TEST_F(ClientTest, testBars) {
     EXPECT_EQ(it->second.size(), 3);
   }
 }
+
+TEST_F(ClientTest, testLastTrade) {
+  auto client = alpaca::testClient();
+  auto last_trade_resp = client.getLastTrade("SPY");
+  EXPECT_OK(last_trade_resp.first);
+  auto last_trade = last_trade_resp.second;
+  EXPECT_EQ(last_trade.symbol, "SPY");
+}

@@ -15,6 +15,7 @@
 #include "alpaca/portfolio.h"
 #include "alpaca/position.h"
 #include "alpaca/status.h"
+#include "alpaca/trade.h"
 #include "alpaca/watchlist.h"
 
 namespace alpaca {
@@ -658,7 +659,27 @@ class Client {
                                   const std::string& after = "",
                                   const std::string& until = "",
                                   const std::string& timeframe = "1D",
-                                  const uint limit = 100);
+                                  const uint limit = 100) const;
+
+  /**
+   * @brief Fetch last trade details for a symbol.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getLastTrade("SPY");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting last trade: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto last_trade = resp.second;
+   *   LOG(INFO) << "Latest price: " << last_trade.trade.price;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::LastTrade object.
+   */
+  std::pair<Status, LastTrade> getLastTrade(const std::string& symbol) const;
 
  private:
   Environment environment_;

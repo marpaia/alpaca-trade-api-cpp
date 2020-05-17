@@ -16,6 +16,7 @@ cc_library(
         "order.h",
         "portfolio.h",
         "position.h",
+        "quote.h",
         "status.h",
         "streaming.h",
         "trade.h",
@@ -32,6 +33,7 @@ cc_library(
         "order.cpp",
         "portfolio.cpp",
         "position.cpp",
+        "quote.cpp",
         "status.cpp",
         "streaming.cpp",
         "trade.cpp",
@@ -167,11 +169,25 @@ cc_test(
         "@com_github_google_googletest//:gtest_main",
     ],
 )
+
 cc_test(
     name = "position_test",
     size = "small",
     srcs = [
         "position_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_github_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "quote_test",
+    size = "small",
+    srcs = [
+        "quote_test.cpp",
     ],
     deps = [
         ":alpaca",

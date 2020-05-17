@@ -266,3 +266,11 @@ TEST_F(ClientTest, testLastTrade) {
   auto last_trade = last_trade_resp.second;
   EXPECT_EQ(last_trade.symbol, "SPY");
 }
+
+TEST_F(ClientTest, testLastQuote) {
+  auto client = alpaca::testClient();
+  auto last_quote_resp = client.getLastQuote("SPY");
+  EXPECT_OK(last_quote_resp.first);
+  auto last_quote = last_quote_resp.second;
+  EXPECT_EQ(last_quote.symbol, "SPY");
+}

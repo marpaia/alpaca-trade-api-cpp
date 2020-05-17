@@ -33,5 +33,13 @@ int main(int argc, char* argv[]) {
   auto last_trade = last_trade_response.second;
   std::cout << "The last traded price of AAPL was: $" << last_trade.trade.price << std::endl;
 
+  auto last_quote_response = client.getLastQuote("AAPL");
+  if (auto status = last_quote_response.first; !status.ok()) {
+    std::cerr << "Error getting last quote information: " << status.getMessage() << std::endl;
+    return status.getCode();
+  }
+  auto last_quote = last_quote_response.second;
+  std::cout << "The last quoted ask price of AAPL was: $" << last_quote.quote.ask_price << std::endl;
+
   return 0;
 }

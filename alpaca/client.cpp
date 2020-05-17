@@ -1132,4 +1132,28 @@ std::pair<Status, LastTrade> Client::getLastTrade(const std::string& symbol) con
   return std::make_pair(last_trade.fromJSON(resp->body), last_trade);
 }
 
+std::pair<Status, LastQuote> Client::getLastQuote(const std::string& symbol) const {
+  LastQuote last_quote;
+
+  auto url = "/v1/last_quote/stocks/" + symbol;
+
+  httplib::SSLClient client(environment_.getAPIDataURL());
+  DLOG(INFO) << "Making request to: " << url;
+  auto resp = client.Get(url.c_str(), headers(environment_));
+  if (!resp) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an empty response";
+    return std::make_pair(Status(1, ss.str()), last_quote);
+  }
+
+  if (resp->status != 200) {
+    std::ostringstream ss;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
+    return std::make_pair(Status(1, ss.str()), last_quote);
+  }
+
+  DLOG(INFO) << "Response from " << url << ": " << resp->body;
+  return std::make_pair(last_quote.fromJSON(resp->body), last_quote);
+}
+
 } // namespace alpaca

@@ -14,6 +14,7 @@
 #include "alpaca/order.h"
 #include "alpaca/portfolio.h"
 #include "alpaca/position.h"
+#include "alpaca/quote.h"
 #include "alpaca/status.h"
 #include "alpaca/trade.h"
 #include "alpaca/watchlist.h"
@@ -680,6 +681,26 @@ class Client {
    * of an alpaca::LastTrade object.
    */
   std::pair<Status, LastTrade> getLastTrade(const std::string& symbol) const;
+
+  /**
+   * @brief Fetch last quote details for a symbol.
+   *
+   * @code{.cpp}
+   *   auto resp = client.getLastQuote("SPY");
+   *   if (auto status = resp.first; !status.ok()) {
+   *     LOG(ERROR) << "Error getting last quote: "
+   *                << status.getMessage();
+   *     return status.getCode();
+   *   }
+   *   auto last_quote = resp.second;
+   *   LOG(INFO) << "Latest ask price: " << last_quote.quote.ask_price;
+   * @endcode
+   *
+   * @return a std::pair where the first elemennt is a Status indicating the
+   * success or faliure of the operation and the second element is an instance
+   * of an alpaca::LastQuote object.
+   */
+  std::pair<Status, LastQuote> getLastQuote(const std::string& symbol) const;
 
  private:
   Environment environment_;

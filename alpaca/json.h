@@ -15,6 +15,11 @@
     var = d[name].GetUint();                                                                                           \
   }
 
+#define PARSE_UINT64(var, name)                                                                                        \
+  if (d.HasMember(name) && d[name].IsUint64()) {                                                                       \
+    var = d[name].GetUint64();                                                                                         \
+  }
+
 #define PARSE_BOOL(var, name)                                                                                          \
   if (d.HasMember(name) && d[name].IsBool()) {                                                                         \
     var = d[name].GetBool();                                                                                           \

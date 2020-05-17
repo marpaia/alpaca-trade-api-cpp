@@ -18,6 +18,7 @@ cc_library(
         "position.h",
         "status.h",
         "streaming.h",
+        "trade.h",
         "watchlist.h",
     ],
     srcs = [
@@ -33,6 +34,7 @@ cc_library(
         "position.cpp",
         "status.cpp",
         "streaming.cpp",
+        "trade.cpp",
         "watchlist.cpp",
     ],
     visibility = ["//visibility:public"],
@@ -196,6 +198,19 @@ cc_test(
     size = "small",
     srcs = [
         "streaming_test.cpp",
+    ],
+    deps = [
+        ":alpaca",
+        ":test_helpers",
+        "@com_github_google_googletest//:gtest_main",
+    ],
+)
+
+cc_test(
+    name = "trade_test",
+    size = "small",
+    srcs = [
+        "trade_test.cpp",
     ],
     deps = [
         ":alpaca",

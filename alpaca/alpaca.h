@@ -10,4 +10,6 @@
 #include "alpaca/portfolio.h"
 #include "alpaca/position.h"
 #include "alpaca/status.h"
+#include "alpaca/streaming.h"
+#include "alpaca/trade.h"
 #include "alpaca/watchlist.h"

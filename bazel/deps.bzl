@@ -36,7 +36,7 @@ def alpaca_deps():
             name = "com_github_tencent_rapidjson",
             strip_prefix = "rapidjson-1.1.0",
             urls = ["https://github.com/Tencent/rapidjson/archive/v1.1.0.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/rapidjson:BUILD",
+            build_file = "@//bazel/third_party/rapidjson:BUILD",
             sha256 = "bf7ced29704a1e696fbccf2a2b4ea068e7774fa37f6d7dd4039d0787f8bed98e",
         )
 
@@ -46,7 +46,7 @@ def alpaca_deps():
             name = "com_github_yhirose_cpp_httplib",
             strip_prefix = "cpp-httplib-0.5.7",
             urls = ["https://github.com/yhirose/cpp-httplib/archive/v0.5.7.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/cpphttplib:BUILD",
+            build_file = "@//bazel/third_party/cpphttplib:BUILD",
             sha256 = "27b7f6346bdeb1ead9d17bd7cea89d9ad491f50f0479081053cc6e5742a89e64",
         )
 
@@ -64,7 +64,7 @@ def alpaca_deps():
             name = "com_github_madler_zlib",
             strip_prefix = "zlib-1.2.11",
             urls = ["https://github.com/madler/zlib/archive/v1.2.11.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/zlib:BUILD",
+            build_file = "@//bazel/third_party/zlib:BUILD",
             sha256 = "629380c90a77b964d896ed37163f5c3a34f6e6d897311f1df2a7016355c45eff",
         )
 
@@ -74,7 +74,7 @@ def alpaca_deps():
             name = "com_github_libuv_libuv",
             strip_prefix = "libuv-1.23.2",
             urls = ["https://github.com/libuv/libuv/archive/v1.23.2.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/libuv:BUILD",
+            build_file = "@//bazel/third_party/libuv:BUILD",
             sha256 = "30af979c4f4b8d1b895ae6d115f7400c751542ccb9e656350fc89fda08d4eabd",
         )
 
@@ -84,6 +84,6 @@ def alpaca_deps():
             name = "com_github_unetworking_uwebsockets",
             strip_prefix = "uWebSockets-0.14.8",
             urls = ["https://github.com/uNetworking/uWebSockets/archive/v0.14.8.tar.gz"],
-            build_file = "@com_github_marpaia_alpaca_trade_api_cpp//bazel/third_party/uwebsockets:BUILD",
+            build_file = "@//bazel/third_party/uwebsockets:BUILD",
             sha256 = "663a22b521c8258e215e34e01c7fcdbbd500296aab2c31d36857228424bb7675",
         )

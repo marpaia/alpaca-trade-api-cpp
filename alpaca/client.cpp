@@ -263,7 +263,7 @@ std::pair<Status, std::vector<Order>> Client::getOrders(const ActionStatus statu
 
   if (resp->status != 200) {
     std::ostringstream ss;
-    ss << "Call to /v2/ returned an HTTP " << resp->status << ": " << resp->body;
+    ss << "Call to " << url << " returned an HTTP " << resp->status << ": " << resp->body;
     return std::make_pair(Status(1, ss.str()), orders);
   }
 
